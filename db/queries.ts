@@ -8,10 +8,9 @@ const LIST_CLUBS_QUERY = `
     c.name AS name,
     c.description AS description,
     c.main_color AS color,
-    ci.icon_key AS icon
+    c.icon_name AS icon
   FROM club c
-  LEFT JOIN club_icon ci ON ci.club_id = c.club_id
-  WHERE c.deleted_flag IS NOT TRUE
+  WHERE c.status = 'active'
   ORDER BY c.club_id ASC;
 `;
 

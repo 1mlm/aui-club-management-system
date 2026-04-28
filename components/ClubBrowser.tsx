@@ -1,17 +1,25 @@
 "use client";
 
-import { SearchIcon } from "@hugeicons/core-free-icons";
+import { SearchIcon, X, PaintBrush04Icon } from "@hugeicons/core-free-icons";
 import { useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { ALLOWED_ICON_MAP } from "@/db/catalog";
 import type { ClubRecord } from "@/db/types";
 import { Icon } from "@/shadcn/cpns/Icon";
+import { Button } from "@/shadcn/ui/button";
 import {
   InputGroup,
   InputGroupAddon,
   InputGroupInput,
   InputGroupText,
 } from "@/shadcn/ui/input-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 import { getClubColorStyles } from "@/util/clubStyles";
 import { toHugeiconList } from "@/util/hugeicons";
 import { useDeterministicIconRotation } from "@/util/iconRotation";
@@ -22,26 +30,50 @@ type ClubBrowserProps = {
 
 const FALLBACK_ICON = ALLOWED_ICON_MAP.KNOWLEDGE;
 
+const SORT_OPTIONS = [
+  { value: "none", label: "None" },
+  { value: "name_asc", label: "Ascending Name" },
+  { value: "name_desc", label: "Descending Name" },
+  { value: "created_asc", label: "Oldest" },
+  { value: "created_desc", label: "Recently Created" },
+];
+
 export function ClubBrowser({ clubs }: ClubBrowserProps) {
   const [query, setQuery] = useQueryState("query", { defaultValue: "" });
+  const [sort, setSort] = useQueryState("sort", { defaultValue: "" });
+  const sortValue = sort || "none";
+  const isFilterActive = !!sort || !!query;
 
   const normalizedQuery = (query || "").trim().toLowerCase();
 
   const visibleClubs = useMemo(() => {
-    if (!normalizedQuery) {
-      return clubs;
+    let list = clubs;
+
+    if (normalizedQuery) {
+      list = list.filter(
+        (club) =>
+          club.name.toLowerCase().includes(normalizedQuery) ||
+          (club.description || "").toLowerCase().includes(normalizedQuery),
+      );
     }
-    return clubs.filter(
-      (club) =>
-        club.name.toLowerCase().includes(normalizedQuery) ||
-        (club.description || "").toLowerCase().includes(normalizedQuery),
-    );
-  }, [clubs, normalizedQuery]);
+
+    if (sort === "name_desc") {
+      list = [...list].sort((a, b) => b.name.localeCompare(a.name));
+    } else if (sort === "name_asc") {
+      list = [...list].sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sort === "created_desc") {
+      list = [...list].sort((a, b) => b.id - a.id);
+    } else if (sort === "created_asc") {
+      list = [...list].sort((a, b) => a.id - b.id);
+    }
+
+    return list;
+  }, [clubs, normalizedQuery, sort]);
 
   return (
     <div className="mx-auto flex min-h-[72vh] w-full max-w-6xl flex-col items-center px-4 py-8 md:px-8">
-      <div className="w-3/4 max-w-[42rem] md:w-full">
-        <InputGroup className="w-full shadow-[0_0_30px_rgba(0,0,0,0.25)] backdrop-blur-md">
+      <div className="w-full flex gap-3 justify-center items-center">
+        <InputGroup className="flex-1 max-w-2xl shadow-[0_0_30px_rgba(0,0,0,0.25)] backdrop-blur-md">
           <InputGroupAddon>
             <Icon icon={SearchIcon} />
           </InputGroupAddon>
@@ -50,6 +82,7 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
             placeholder="Search..."
             value={query || ""}
             onChange={(e) => setQuery(e.target.value)}
+            className="h-12"
           />
           {visibleClubs.length > 0 && normalizedQuery && (
             <InputGroupText className="text-muted-foreground pr-2">
@@ -57,6 +90,38 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
             </InputGroupText>
           )}
         </InputGroup>
+
+        <Select
+          value={sortValue}
+          onValueChange={(v) => setSort(v === "none" ? "" : v)}
+        >
+          <SelectTrigger 
+            className={`w-40 h-10 ${isFilterActive ? "bg-primary text-primary-foreground" : ""}`}
+          >
+            <SelectValue placeholder="Sort By" />
+          </SelectTrigger>
+          <SelectContent>
+            {SORT_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.label}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+
+        {isFilterActive && (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => {
+              setSort("");
+              setQuery("");
+            }}
+            className="h-10 px-3"
+          >
+            <Icon icon={PaintBrush04Icon} className="w-4 h-4" />
+          </Button>
+        )}
       </div>
 
       <div className="mt-8 flex w-full flex-wrap justify-center gap-4 md:gap-6">
@@ -66,7 +131,10 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
       </div>
 
       {normalizedQuery && visibleClubs.length === 0 ? (
-        <p className="mt-8 text-muted-foreground">no clubs match this search.</p>
+        <p className="mt-8 text-muted-foreground flex flex-col items-center">
+          <Icon icon={X} className="size-12 mb-2" />
+          No clubs match this search.
+        </p>
       ) : null}
     </div>
   );
@@ -117,7 +185,9 @@ function ClubCard({ club }: { club: ClubRecord }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <h2 className="text-xl font-semibold leading-tight">{club.name} Club</h2>
+        <h2 className="text-xl font-semibold leading-tight">
+          {club.name}
+        </h2>
         <p className="mt-2 text-base leading-relaxed text-muted-foreground">
           {club.description}
         </p>

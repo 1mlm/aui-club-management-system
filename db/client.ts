@@ -13,7 +13,7 @@ export function getDbPool() {
       port: 5432,
       user: env.user,
       password: env.password,
-      database: env.database,
+      database: "aui-clubs",
       max: 10,
       idleTimeoutMillis: 30_000,
       connectionTimeoutMillis: 5_000,

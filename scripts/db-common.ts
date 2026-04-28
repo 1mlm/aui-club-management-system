@@ -35,11 +35,10 @@ const getDbConfig = () => ({
   port: 5432,
   user: readRequired("DB_USER"),
   password: readRequired("DB_PASSWORD"),
-  database: process.env.DB_NAME || "aui-clubs",
+  database: "aui-clubs",
   adminDatabase: "postgres",
-  createSchemaFile: path.resolve(process.cwd(), "db/create.sql"),
-  appSchemaFile: path.resolve(process.cwd(), "db/query.sql"),
-  seedFile: path.resolve(process.cwd(), "db/populate.sql"),
+  createSchemaFile: path.resolve(process.cwd(), "db/sql/create.sql"),
+  seedFile: path.resolve(process.cwd(), "db/sql/populate.sql"),
 });
 
 export {

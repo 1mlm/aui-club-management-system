@@ -1,7 +1,6 @@
 type DbEnv = {
   user: string;
   password: string;
-  database: string;
 };
 
 function readRequiredEnv(name: string): string {
@@ -16,6 +15,5 @@ export function getDbEnv(): DbEnv {
   return {
     user: readRequiredEnv("DB_USER"),
     password: readRequiredEnv("DB_PASSWORD"),
-    database: process.env.DB_NAME || "aui-clubs",
   };
 }

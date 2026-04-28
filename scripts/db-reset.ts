@@ -57,11 +57,9 @@ const main = async () => {
     const createSql = stripCreateSqlDatabaseDirectives(
       readSqlFile(config.createSchemaFile),
     );
-    const appSchemaSql = readSqlFile(config.appSchemaFile);
     const seedSql = readSqlFile(config.seedFile);
 
     await runSql(appClient, createSql, "db/create.sql");
-    await runSql(appClient, appSchemaSql, "db/query.sql");
     await runSql(appClient, seedSql, "db/populate.sql");
     console.log("db:reset success");
   } finally {

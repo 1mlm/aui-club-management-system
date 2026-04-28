@@ -20,8 +20,7 @@ const main = async () => {
         (SELECT COUNT(*) FROM club) as club_count,
         (SELECT COUNT(*) FROM membership) as membership_count,
         (SELECT COUNT(*) FROM post) as post_count,
-        (SELECT COUNT(*) FROM role) as role_count,
-        (SELECT COUNT(*) FROM permission) as permission_count;
+        (SELECT COUNT(*) FROM joinrequest) as joinrequest_count;
     `);
 
     const counts = result.rows[0];
@@ -30,8 +29,7 @@ const main = async () => {
     console.log(`clubs: ${counts.club_count}`);
     console.log(`memberships: ${counts.membership_count}`);
     console.log(`posts: ${counts.post_count}`);
-    console.log(`roles: ${counts.role_count}`);
-    console.log(`permissions: ${counts.permission_count}`);
+    console.log(`join requests: ${counts.joinrequest_count}`);
   } finally {
     await client.end().catch(() => undefined);
   }
