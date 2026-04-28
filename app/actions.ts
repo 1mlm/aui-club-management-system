@@ -1,12 +1,12 @@
 "use server";
 
 import {
+  approveJoinRequest as approveJoinRequestDb,
+  deleteUser as deleteUserDb,
+  rejectJoinRequest as rejectJoinRequestDb,
+  updateClubStatus as updateClubStatusDb,
   updateUserAdminStatus as updateUserAdminStatusDb,
   updateUserDisplayName as updateUserDisplayNameDb,
-  deleteUser as deleteUserDb,
-  updateClubStatus as updateClubStatusDb,
-  approveJoinRequest as approveJoinRequestDb,
-  rejectJoinRequest as rejectJoinRequestDb,
 } from "@/db/admin";
 
 export async function serverUpdateUserAdminStatus(
@@ -34,10 +34,14 @@ export async function serverUpdateClubStatus(
   await updateClubStatusDb(clubId, status);
 }
 
-export async function serverApproveJoinRequest(requestId: number): Promise<void> {
+export async function serverApproveJoinRequest(
+  requestId: number,
+): Promise<void> {
   await approveJoinRequestDb(requestId);
 }
 
-export async function serverRejectJoinRequest(requestId: number): Promise<void> {
+export async function serverRejectJoinRequest(
+  requestId: number,
+): Promise<void> {
   await rejectJoinRequestDb(requestId);
 }

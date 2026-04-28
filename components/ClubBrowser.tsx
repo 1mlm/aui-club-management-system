@@ -1,6 +1,6 @@
 "use client";
 
-import { SearchIcon, X, PaintBrush04Icon } from "@hugeicons/core-free-icons";
+import { PaintBrush04Icon, SearchIcon, X } from "@hugeicons/core-free-icons";
 import { useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { ALLOWED_ICON_MAP } from "@/db/catalog";
@@ -95,7 +95,7 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
           value={sortValue}
           onValueChange={(v) => setSort(v === "none" ? "" : v)}
         >
-          <SelectTrigger 
+          <SelectTrigger
             className={`w-40 h-10 ${isFilterActive ? "bg-primary text-primary-foreground" : ""}`}
           >
             <SelectValue placeholder="Sort By" />
@@ -185,9 +185,7 @@ function ClubCard({ club }: { club: ClubRecord }) {
       </div>
 
       <div className="min-w-0 flex-1">
-        <h2 className="text-xl font-semibold leading-tight">
-          {club.name}
-        </h2>
+        <h2 className="text-xl font-semibold leading-tight">{club.name}</h2>
         <p className="mt-2 text-base leading-relaxed text-muted-foreground">
           {club.description}
         </p>

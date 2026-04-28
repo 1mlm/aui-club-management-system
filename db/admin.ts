@@ -1,7 +1,7 @@
+import type { AdminClub, AdminJoinRequest, AdminUser } from "@/db/admin-types";
 import { getDbPool } from "@/db/client";
-import type { AdminUser, AdminClub, AdminJoinRequest } from "@/db/admin-types";
 
-export type { AdminUser, AdminClub, AdminJoinRequest } from "@/db/admin-types";
+export type { AdminClub, AdminJoinRequest, AdminUser } from "@/db/admin-types";
 
 export async function getAllUsers(): Promise<AdminUser[]> {
   const pool = getDbPool();
@@ -132,8 +132,12 @@ export async function deleteUser(userId: number): Promise<void> {
   // Hard delete: remove all dependent records first
   await pool.query(`DELETE FROM membership WHERE user_id = $1;`, [userId]);
   await pool.query(`DELETE FROM post WHERE user_id = $1;`, [userId]);
-  await pool.query(`DELETE FROM joinrequest WHERE initiator_user_id = $1;`, [userId]);
-  await pool.query(`DELETE FROM joinrequest WHERE reviewer_user_id = $1;`, [userId]);
+  await pool.query(`DELETE FROM joinrequest WHERE initiator_user_id = $1;`, [
+    userId,
+  ]);
+  await pool.query(`DELETE FROM joinrequest WHERE reviewer_user_id = $1;`, [
+    userId,
+  ]);
   await pool.query(`DELETE FROM users WHERE user_id = $1;`, [userId]);
 }
 

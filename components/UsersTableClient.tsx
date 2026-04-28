@@ -2,13 +2,12 @@
 
 import { useState } from "react";
 import {
+  serverDeleteUser,
   serverUpdateUserAdminStatus,
   serverUpdateUserDisplayName,
-  serverDeleteUser,
 } from "@/app/actions";
-import type { AdminUser } from "@/db/admin-types";
 import { AdminTable, type TableColumn } from "@/components/AdminTable";
-import { Button } from "@/shadcn/ui/button";
+import type { AdminUser } from "@/db/admin-types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,7 +50,11 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
   };
 
   const handleEditName = async (user: AdminUser) => {
-    if (dialog.user?.id === user.id && dialog.type === "edit_name" && dialog.newValue) {
+    if (
+      dialog.user?.id === user.id &&
+      dialog.type === "edit_name" &&
+      dialog.newValue
+    ) {
       try {
         await serverUpdateUserDisplayName(user.id, dialog.newValue);
         setUsers(
@@ -105,7 +108,10 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
         searchKeys={["email", "displayName"]}
         title="Users"
         actionButtons={(user) => [
-          { label: user.isSystemAdmin ? "Revoke Admin" : "Make Admin", action: "toggle_admin" },
+          {
+            label: user.isSystemAdmin ? "Revoke Admin" : "Make Admin",
+            action: "toggle_admin",
+          },
           { label: "Edit Name", action: "edit_name" },
           { label: "Delete", action: "delete" },
         ]}
@@ -138,7 +144,9 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
                 >
                   Cancel
                 </AlertDialogCancel>
-                <AlertDialogAction onClick={() => handleToggleAdmin(dialog.user!)}>
+                <AlertDialogAction
+                  onClick={() => handleToggleAdmin(dialog.user!)}
+                >
                   {dialog.user.isSystemAdmin ? "Revoke" : "Grant"}
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -179,7 +187,8 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Delete User?</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This action cannot be undone. You are about to permanently delete {dialog.user.email} and all their associated data.
+                  This action cannot be undone. You are about to permanently
+                  delete {dialog.user.email} and all their associated data.
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>

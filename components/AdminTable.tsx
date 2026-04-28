@@ -1,7 +1,7 @@
 "use client";
 
+import { SearchIcon, X } from "@hugeicons/core-free-icons";
 import React, { useMemo } from "react";
-import { X, SearchIcon } from "@hugeicons/core-free-icons";
 import { Icon } from "@/shadcn/cpns/Icon";
 import { Button } from "@/shadcn/ui/button";
 import {

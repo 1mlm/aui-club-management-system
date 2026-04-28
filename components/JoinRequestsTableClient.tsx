@@ -1,15 +1,20 @@
 "use client";
 
 import { useState } from "react";
-import { serverApproveJoinRequest, serverRejectJoinRequest } from "@/app/actions";
-import type { AdminJoinRequest } from "@/db/admin-types";
+import {
+  serverApproveJoinRequest,
+  serverRejectJoinRequest,
+} from "@/app/actions";
 import { AdminTable, type TableColumn } from "@/components/AdminTable";
+import type { AdminJoinRequest } from "@/db/admin-types";
 
 type JoinRequestsTableClientProps = {
   initialRequests: AdminJoinRequest[];
 };
 
-export function JoinRequestsTableClient({ initialRequests }: JoinRequestsTableClientProps) {
+export function JoinRequestsTableClient({
+  initialRequests,
+}: JoinRequestsTableClientProps) {
   const [requests, setRequests] = useState<AdminJoinRequest[]>(initialRequests);
 
   const handleAction = async (request: AdminJoinRequest, action: string) => {
@@ -54,9 +59,9 @@ export function JoinRequestsTableClient({ initialRequests }: JoinRequestsTableCl
       actionButtons={(request) =>
         request.status === "pending"
           ? [
-              { label: "Approve", action: "approve" },
-              { label: "Reject", action: "reject" },
-            ]
+            { label: "Approve", action: "approve" },
+            { label: "Reject", action: "reject" },
+          ]
           : []
       }
       onRowAction={handleAction}

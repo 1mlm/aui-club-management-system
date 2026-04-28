@@ -3,7 +3,6 @@
 import { redirect, usePathname } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { cn } from "@/shadcn/lib/utils";
-import { Separator } from "@/shadcn/ui/separator";
 
 export default function AdminLayout({
   children,

@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { serverUpdateClubStatus } from "@/app/actions";
-import type { AdminClub } from "@/db/admin-types";
 import { AdminTable, type TableColumn } from "@/components/AdminTable";
+import type { AdminClub } from "@/db/admin-types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -28,7 +28,11 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
   }>({ type: null, club: null });
 
   const handleStatusChange = async (club: AdminClub) => {
-    if (dialog.club?.id === club.id && dialog.type === "status" && dialog.newStatus) {
+    if (
+      dialog.club?.id === club.id &&
+      dialog.type === "status" &&
+      dialog.newStatus
+    ) {
       try {
         await serverUpdateClubStatus(club.id, dialog.newStatus);
         setClubs(
@@ -97,7 +101,9 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
                 >
                   Cancel
                 </AlertDialogCancel>
-                <AlertDialogAction onClick={() => handleStatusChange(dialog.club!)}>
+                <AlertDialogAction
+                  onClick={() => handleStatusChange(dialog.club!)}
+                >
                   Update
                 </AlertDialogAction>
               </AlertDialogFooter>
