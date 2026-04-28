@@ -17,10 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/shadcn/ui/table";
+import type { Hugeicon } from "@/util/hugeicons";
 
 export type TableColumn<T> = {
   key: keyof T;
   label: string;
+  icon?: Hugeicon;
   render?: (value: T[keyof T], row: T) => React.ReactNode;
 };
 
@@ -80,7 +82,12 @@ export function AdminTable<T extends { id?: number }>({
           <TableHeader>
             <TableRow>
               {columns.map((col) => (
-                <TableHead key={String(col.key)}>{col.label}</TableHead>
+                <TableHead key={String(col.key)}>
+                  {col.icon && (
+                    <Icon icon={col.icon} className="size-4 mr-2 float-left self-center place-items-center" />
+                  )}
+                  {col.label}
+                </TableHead>
               ))}
               {actionButtons && <TableHead>Actions</TableHead>}
             </TableRow>

@@ -1,5 +1,6 @@
 "use client";
 
+import { UserIcon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import {
   serverDeleteUser,
@@ -86,7 +87,7 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
   };
 
   const columns: TableColumn<AdminUser>[] = [
-    { key: "email", label: "Email" },
+    { key: "email", label: "Email", icon: UserIcon },
     { key: "displayName", label: "Display Name" },
     {
       key: "isSystemAdmin",

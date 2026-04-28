@@ -153,16 +153,21 @@ function ClubCard({ club }: { club: ClubRecord }) {
         backgroundColor: colorStyles.bg,
         borderColor: colorStyles.border,
         boxShadow: `0 0 20px ${colorStyles.shadow}`,
+        // @ts-expect-error
+        "cornerShape": "squircle",
       }}
-      className="flex w-full max-w-[24rem] gap-4 rounded-3xl corner-shape-squircle border-3 p-4 transition-all duration-300 hover:-translate-y-1"
+      className="flex w-full max-w-[24rem] gap-4 rounded-full border-3 p-4 transition-all duration-300
+      hover:cursor-pointer! active:scale-95 hover:-translate-y-2"
     >
       <div
         style={{
           backgroundColor: colorStyles.bg,
           borderColor: colorStyles.border,
           boxShadow: `0 0 20px ${colorStyles.shadow}`,
+          // @ts-expect-error
+          "cornerShape": "squircle",
         }}
-        className="club-icon size-16 shrink-0 corner-shape-squircle border-3 flex items-center justify-center"
+        className="club-icon size-16 shrink-0 rounded-full border-3 flex items-center justify-center"
       >
         <div {...transitionProps.stageProps}>
           {outgoingIcon ? (

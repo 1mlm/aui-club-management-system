@@ -109,8 +109,13 @@ CREATE TABLE post (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-    CONSTRAINT fk_post_club FOREIGN KEY (club_id) REFERENCES club (club_id) ON UPDATE CASCADE,
-    CONSTRAINT fk_post_user FOREIGN KEY (user_id) REFERENCES users (user_id) ON UPDATE CASCADE
+
+    CONSTRAINT fk_post_club
+      FOREIGN KEY (club_id)
+      REFERENCES club (club_id) ON UPDATE CASCADE,
+    CONSTRAINT fk_post_user
+      FOREIGN KEY (user_id)
+      REFERENCES users (user_id) ON UPDATE CASCADE
 );
 
 CREATE TABLE joinrequest (
