@@ -14,6 +14,13 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shadcn/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 
 type ClubsTableClientProps = {
   initialClubs: AdminClub[];
@@ -28,16 +35,17 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
   }>({ type: null, club: null });
 
   const handleStatusChange = async (club: AdminClub) => {
+    const nextStatus = dialog.newStatus?.trim();
     if (
       dialog.club?.id === club.id &&
       dialog.type === "status" &&
-      dialog.newStatus
+      nextStatus
     ) {
       try {
-        await serverUpdateClubStatus(club.id, dialog.newStatus);
+        await serverUpdateClubStatus(club.id, nextStatus);
         setClubs(
           clubs.map((c) =>
-            c.id === club.id ? { ...c, status: dialog.newStatus! } : c,
+            c.id === club.id ? { ...c, status: nextStatus } : c,
           ),
         );
         setDialog({ type: null, club: null });
@@ -82,17 +90,23 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Change Club Status</AlertDialogTitle>
                 <AlertDialogDescription>
-                  <select
-                    value={dialog.newStatus || ""}
-                    onChange={(e) =>
-                      setDialog({ ...dialog, newStatus: e.target.value })
-                    }
-                    className="w-full px-3 py-2 mt-4 border rounded"
-                  >
-                    <option value="active">Active</option>
-                    <option value="archived">Archived</option>
-                    <option value="deleted">Deleted</option>
-                  </select>
+                  <div className="mt-4">
+                    <Select
+                      value={dialog.newStatus || ""}
+                      onValueChange={(value) =>
+                        setDialog({ ...dialog, newStatus: value })
+                      }
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="archived">Archived</SelectItem>
+                        <SelectItem value="deleted">Deleted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
@@ -102,7 +116,7 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
                   Cancel
                 </AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={() => handleStatusChange(dialog.club!)}
+                  onClick={() => dialog.club && handleStatusChange(dialog.club)}
                 >
                   Update
                 </AlertDialogAction>

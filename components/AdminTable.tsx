@@ -1,9 +1,10 @@
 "use client";
 
-import { SearchIcon, X } from "@hugeicons/core-free-icons";
 import React, { useMemo } from "react";
+import { IconBtn } from "@/components/IconBtn";
+import { ICON_MAP } from "@/lib/icon-map";
 import { Icon } from "@/shadcn/cpns/Icon";
-import { Button } from "@/shadcn/ui/button";
+import { cn } from "@/shadcn/lib/utils";
 import {
   InputGroup,
   InputGroupAddon,
@@ -31,8 +32,31 @@ type AdminTableProps<T> = {
   columns: TableColumn<T>[];
   searchKeys?: (keyof T)[];
   onRowAction?: (row: T, action: string) => void;
-  actionButtons?: (row: T) => { label: string; action: string }[];
+  actionButtons?: (row: T) => {
+    label: string;
+    action: string;
+    icon?: Hugeicon;
+    className?: string;
+  }[];
   title?: string;
+};
+
+const ACTION_ICON_MAP: Record<
+  string,
+  { icon: Hugeicon; className?: string }
+> = {
+  approve: { icon: ICON_MAP.actions.approve },
+  reject: {
+    icon: ICON_MAP.actions.reject,
+    className: "text-destructive hover:text-destructive",
+  },
+  delete: {
+    icon: ICON_MAP.actions.delete,
+    className: "text-destructive hover:text-destructive",
+  },
+  edit_name: { icon: ICON_MAP.actions.edit },
+  toggle_admin: { icon: ICON_MAP.actions.admin },
+  change_status: { icon: ICON_MAP.actions.status },
 };
 
 export function AdminTable<T extends { id?: number }>({
@@ -57,14 +81,19 @@ export function AdminTable<T extends { id?: number }>({
   }, [data, search, searchKeys]);
 
   return (
-    <div className="w-full">
-      {title && <h2 className="text-2xl font-semibold mb-4">{title}</h2>}
+    <div className="space-y-4">
+      {title && (
+        <div className="flex items-center justify-between">
+          <h1 className="text-xl font-semibold">{title}</h1>
+          <span className="text-xs text-muted-foreground tabular-nums">{filteredData.length} items</span>
+        </div>
+      )}
 
       {searchKeys && searchKeys.length > 0 && (
-        <div className="mb-4">
-          <InputGroup className="max-w-sm shadow-[0_0_30px_rgba(0,0,0,0.25)] backdrop-blur-md">
+        <div>
+          <InputGroup className="max-w-sm">
             <InputGroupAddon>
-              <Icon icon={SearchIcon} />
+              <Icon icon={ICON_MAP.misc.search} />
             </InputGroupAddon>
             <InputGroupInput
               type="text"
@@ -73,6 +102,9 @@ export function AdminTable<T extends { id?: number }>({
               onChange={(e) => setSearch(e.target.value)}
               className="h-10"
             />
+            <InputGroupAddon className="text-xs text-muted-foreground tabular-nums px-3">
+              {filteredData.length} {filteredData.length === 1 ? "result" : "results"}
+            </InputGroupAddon>
           </InputGroup>
         </div>
       )}
@@ -83,10 +115,10 @@ export function AdminTable<T extends { id?: number }>({
             <TableRow>
               {columns.map((col) => (
                 <TableHead key={String(col.key)}>
-                  {col.icon && (
-                    <Icon icon={col.icon} className="size-4 mr-2 float-left self-center place-items-center" />
-                  )}
-                  {col.label}
+                  <div className="flex items-center gap-1.5">
+                    {col.icon && <Icon icon={col.icon} className="size-3.5" />}
+                    <span>{col.label}</span>
+                  </div>
                 </TableHead>
               ))}
               {actionButtons && <TableHead>Actions</TableHead>}
@@ -99,13 +131,13 @@ export function AdminTable<T extends { id?: number }>({
                   colSpan={columns.length + (actionButtons ? 1 : 0)}
                   className="text-center py-8 text-muted-foreground"
                 >
-                  <Icon icon={X} className="size-8 mx-auto mb-2" />
+                  <Icon icon={ICON_MAP.status.empty} className="size-8 mx-auto mb-2" />
                   No records found
                 </TableCell>
               </TableRow>
             ) : (
               filteredData.map((row) => (
-                <TableRow key={row.id}>
+                <TableRow key={row.id} className="group">
                   {columns.map((col) => (
                     <TableCell key={String(col.key)}>
                       {col.render
@@ -115,19 +147,21 @@ export function AdminTable<T extends { id?: number }>({
                   ))}
                   {actionButtons && (
                     <TableCell>
-                      <div className="flex gap-2">
-                        {actionButtons(row).map((btn) => (
-                          <Button
-                            key={btn.action}
-                            size="sm"
-                            variant="outline"
-                            onClick={() =>
-                              onRowAction && onRowAction(row, btn.action)
-                            }
-                          >
-                            {btn.label}
-                          </Button>
-                        ))}
+                      <div className="flex justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                        {actionButtons(row).map((btn) => {
+                          const mapped = ACTION_ICON_MAP[btn.action];
+                          const icon = btn.icon ?? mapped?.icon ?? ICON_MAP.actions.edit;
+                          return (
+                            <IconBtn
+                              key={btn.action}
+                              tooltip={btn.label}
+                              className={cn(mapped?.className, btn.className)}
+                              onClick={() => onRowAction?.(row, btn.action)}
+                            >
+                              <Icon icon={icon} />
+                            </IconBtn>
+                          );
+                        })}
                       </div>
                     </TableCell>
                   )}

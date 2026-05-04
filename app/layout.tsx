@@ -3,8 +3,10 @@ import { Outfit } from "next/font/google";
 import type { PropsWithChildren } from "react";
 import "@/styles/globals.css";
 import { Providers } from "@/components/Providers";
+import { SidebarProvider, SidebarInset } from "@/shadcn/ui/sidebar";
+import { AppSidebar } from "@/shadcn/cpns/app-sidebar";
 
-const outfit = Outfit();
+const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
   title: "AUI Clubs",
@@ -13,9 +15,18 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: PropsWithChildren) {
   return (
-    <html lang="en" className={outfit.className}>
-      <body className={`antialiased w-screen min-h-screen`}>
-        <Providers>{children}</Providers>
+    <html lang="en" className={outfit.variable}>
+      <body className="min-h-screen bg-background text-foreground antialiased font-sans">
+        <Providers>
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarInset>
+              <main className="flex flex-1 flex-col gap-4 p-4">
+                {children}
+              </main>
+            </SidebarInset>
+          </SidebarProvider>
+        </Providers>
       </body>
     </html>
   );

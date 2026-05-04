@@ -1,6 +1,5 @@
 "use client";
 
-import { UserIcon } from "@hugeicons/core-free-icons";
 import { useState } from "react";
 import {
   serverDeleteUser,
@@ -9,6 +8,7 @@ import {
 } from "@/app/actions";
 import { AdminTable, type TableColumn } from "@/components/AdminTable";
 import type { AdminUser } from "@/db/admin-types";
+import { ICON_MAP } from "@/lib/icon-map";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,6 +19,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/shadcn/ui/alert-dialog";
+import { Input } from "@/shadcn/ui/input";
 
 type UsersTableClientProps = {
   initialUsers: AdminUser[];
@@ -51,16 +52,17 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
   };
 
   const handleEditName = async (user: AdminUser) => {
+    const nextValue = dialog.newValue?.trim();
     if (
       dialog.user?.id === user.id &&
       dialog.type === "edit_name" &&
-      dialog.newValue
+      nextValue
     ) {
       try {
-        await serverUpdateUserDisplayName(user.id, dialog.newValue);
+        await serverUpdateUserDisplayName(user.id, nextValue);
         setUsers(
           users.map((u) =>
-            u.id === user.id ? { ...u, displayName: dialog.newValue! } : u,
+            u.id === user.id ? { ...u, displayName: nextValue } : u,
           ),
         );
         setDialog({ type: null, user: null, newValue: "" });
@@ -87,7 +89,7 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
   };
 
   const columns: TableColumn<AdminUser>[] = [
-    { key: "email", label: "Email", icon: UserIcon },
+    { key: "email", label: "Email", icon: ICON_MAP.nav.users },
     { key: "displayName", label: "Display Name" },
     {
       key: "isSystemAdmin",
@@ -146,7 +148,7 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
                   Cancel
                 </AlertDialogCancel>
                 <AlertDialogAction
-                  onClick={() => handleToggleAdmin(dialog.user!)}
+                  onClick={() => dialog.user && handleToggleAdmin(dialog.user)}
                 >
                   {dialog.user.isSystemAdmin ? "Revoke" : "Grant"}
                 </AlertDialogAction>
@@ -159,13 +161,12 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
               <AlertDialogHeader>
                 <AlertDialogTitle>Edit Display Name</AlertDialogTitle>
                 <AlertDialogDescription>
-                  <input
-                    type="text"
+                  <Input
                     value={dialog.newValue || ""}
                     onChange={(e) =>
                       setDialog({ ...dialog, newValue: e.target.value })
                     }
-                    className="w-full px-3 py-2 mt-4 border rounded"
+                    className="mt-4"
                     placeholder="New display name"
                   />
                 </AlertDialogDescription>
@@ -176,7 +177,9 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
                 >
                   Cancel
                 </AlertDialogCancel>
-                <AlertDialogAction onClick={() => handleEditName(dialog.user!)}>
+                <AlertDialogAction
+                  onClick={() => dialog.user && handleEditName(dialog.user)}
+                >
                   Save
                 </AlertDialogAction>
               </AlertDialogFooter>
@@ -198,7 +201,9 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
                 >
                   Cancel
                 </AlertDialogCancel>
-                <AlertDialogAction onClick={() => handleDelete(dialog.user!)}>
+                <AlertDialogAction
+                  onClick={() => dialog.user && handleDelete(dialog.user)}
+                >
                   Delete
                 </AlertDialogAction>
               </AlertDialogFooter>

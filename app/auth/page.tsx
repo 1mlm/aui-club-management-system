@@ -1,9 +1,9 @@
 "use client";
 
-import { Cancel01Icon, Tick02Icon } from "@hugeicons/core-free-icons";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
+import { ICON_MAP } from "@/lib/icon-map";
 import { Icon } from "@/shadcn/cpns/Icon";
 import { cn } from "@/shadcn/lib/utils";
 import { Button } from "@/shadcn/ui/button";
@@ -300,9 +300,15 @@ export default function AuthPage() {
                         )}
                       >
                         {showValid ? (
-                          <Icon icon={Tick02Icon} className="size-3.5" />
+                          <Icon
+                            icon={ICON_MAP.status.success}
+                            className="size-3.5"
+                          />
                         ) : showInvalid ? (
-                          <Icon icon={Cancel01Icon} className="size-3.5" />
+                          <Icon
+                            icon={ICON_MAP.status.error}
+                            className="size-3.5"
+                          />
                         ) : null}
                         {rule.getLabel(value, values)}
                       </p>

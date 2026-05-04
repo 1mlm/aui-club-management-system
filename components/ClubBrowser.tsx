@@ -1,10 +1,10 @@
 "use client";
 
-import { PaintBrush04Icon, SearchIcon, X } from "@hugeicons/core-free-icons";
 import { useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { ALLOWED_ICON_MAP } from "@/db/catalog";
 import type { ClubRecord } from "@/db/types";
+import { ICON_MAP } from "@/lib/icon-map";
 import { Icon } from "@/shadcn/cpns/Icon";
 import { Button } from "@/shadcn/ui/button";
 import {
@@ -75,7 +75,7 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
       <div className="w-full flex gap-3 justify-center items-center">
         <InputGroup className="flex-1 max-w-2xl shadow-[0_0_30px_rgba(0,0,0,0.25)] backdrop-blur-md">
           <InputGroupAddon>
-            <Icon icon={SearchIcon} />
+            <Icon icon={ICON_MAP.misc.search} />
           </InputGroupAddon>
           <InputGroupInput
             type="text"
@@ -119,7 +119,7 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
             }}
             className="h-10 px-3"
           >
-            <Icon icon={PaintBrush04Icon} className="w-4 h-4" />
+            <Icon icon={ICON_MAP.actions.reset} className="w-4 h-4" />
           </Button>
         )}
       </div>
@@ -132,7 +132,7 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
 
       {normalizedQuery && visibleClubs.length === 0 ? (
         <p className="mt-8 text-muted-foreground flex flex-col items-center">
-          <Icon icon={X} className="size-12 mb-2" />
+          <Icon icon={ICON_MAP.status.empty} className="size-12 mb-2" />
           No clubs match this search.
         </p>
       ) : null}

@@ -17,6 +17,7 @@ DB_PASSWORD=lmalik
 ```
 
 note: assumes postgres is on localhost:5432.
+database name: aui_clubs.
 
 ## db scripts
 

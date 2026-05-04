@@ -1,8 +1,16 @@
-import { ClubAppShell } from "@/components/ClubAppShell";
 import { listClubs } from "@/db/queries";
+import { ClubBrowser } from "@/components/ClubBrowser";
 
 export default async function Page() {
   const clubs = await listClubs();
 
-  return <ClubAppShell clubs={clubs} />;
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold">Clubs Dashboard</h1>
+        <span className="text-xs text-muted-foreground tabular-nums">{clubs.length} clubs</span>
+      </div>
+      <ClubBrowser clubs={clubs} />
+    </div>
+  );
 }
