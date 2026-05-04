@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getClubById, getClubMembers } from "@/db/queries";
+import { getClubById, getClubMembers, getClubPosts } from "@/db/queries";
 import { ALLOWED_ICON_MAP } from "@/db/catalog";
 import { Icon } from "@/shadcn/cpns/Icon";
 import { getClubColorStyles } from "@/util/clubStyles";
@@ -18,6 +18,7 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
   if (!club) return notFound();
 
   const members = await getClubMembers(clubId);
+  const posts = await getClubPosts(clubId);
   
   const cookieStore = await cookies();
   const rawUserId = cookieStore.get(AUTH_COOKIE_NAME)?.value;
@@ -68,9 +69,28 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
            <h2 className="text-xl font-semibold mb-4 text-foreground/80 flex items-center gap-2">
              <Icon icon={ALLOWED_ICON_MAP.KNOWLEDGE} className="size-5" /> Recent Announcements
            </h2>
-           <div className="rounded-xl border border-dashed p-10 flex flex-col items-center justify-center text-center">
+           {posts.length > 0 ? (
+             <div className="space-y-4">
+               {posts.map((post) => (
+                 <div key={post.id} className="rounded-xl border p-6 bg-card">
+                   <div className="flex items-start justify-between mb-3">
+                     <h3 className="text-lg font-semibold">{post.title}</h3>
+                     <span className="text-sm text-muted-foreground">
+                       {new Date(post.created_at).toLocaleDateString()}
+                     </span>
+                   </div>
+                   <p className="text-muted-foreground mb-3">{post.content}</p>
+                   <div className="text-sm text-muted-foreground">
+                     Posted by {post.author_display_name}
+                   </div>
+                 </div>
+               ))}
+             </div>
+           ) : (
+             <div className="rounded-xl border border-dashed p-10 flex flex-col items-center justify-center text-center">
                <p className="text-muted-foreground/50">No announcements have been posted yet.</p>
-           </div>
+             </div>
+           )}
        </div>
     </div>
   )

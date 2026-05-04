@@ -78,7 +78,19 @@ VALUES
   (17, 5, 15, 'Fitness tips', 'Share your training routines and nutrition advice.', NOW(), NOW(), FALSE),
   (18, 6, 16, 'Script selection vote', 'Vote for the next play production, results tomorrow.', NOW(), NOW(), FALSE),
   (19, 1, 4, 'Debate prep session', 'Extra study time this Saturday for interested members.', NOW(), NOW(), FALSE),
-  (20, 2, 5, 'Motor testing day', 'Bring all prototypes for speed and load tests.', NOW(), NOW(), FALSE);
+  (20, 2, 5, 'Motor testing day', 'Bring all prototypes for speed and load tests.', NOW(), NOW(), FALSE),
+  (21, 1, 7, 'Debate Club Meeting Reminder', 'Don''t forget our weekly meeting tomorrow at 4 PM in room 201. We''ll be practicing rebuttal techniques.', NOW(), NOW(), FALSE),
+  (22, 2, 2, 'New Robotics Project', 'We''re starting a new autonomous robot project. Anyone interested in computer vision should join us!', NOW(), NOW(), FALSE),
+  (23, 3, 13, 'Hackathon Registration Open', 'The inter-university hackathon registration is now open. Teams of 3-4 students. Sign up by Friday!', NOW(), NOW(), FALSE),
+  (24, 4, 8, 'Concert Planning', 'We''re organizing our first concert of the semester. Volunteers needed for sound and lighting crew.', NOW(), NOW(), FALSE),
+  (25, 5, 9, 'Tournament Registration', 'The annual sports tournament registration is open. Multiple sports categories available.', NOW(), NOW(), FALSE),
+  (26, 6, 10, 'New Play Casting', 'Auditions for our new production "Hamlet" will be held next week. All roles available.', NOW(), NOW(), FALSE),
+  (27, 1, 11, 'Guest Speaker Event', 'We have a guest speaker from the local debate association coming next month. Save the date!', NOW(), NOW(), FALSE),
+  (28, 2, 12, '3D Printing Workshop', 'Free workshop on 3D printing basics. Bring your laptop and ideas!', NOW(), NOW(), FALSE),
+  (29, 3, 14, 'Web Development Bootcamp', 'Two-week intensive web development course starting next Monday. Limited spots available.', NOW(), NOW(), FALSE),
+  (30, 4, 15, 'Music Theory Session', 'Weekly music theory session every Wednesday. All skill levels welcome.', NOW(), NOW(), FALSE),
+  (31, 5, 16, 'Nutrition Workshop', 'Learn about sports nutrition and meal planning for athletes. Free for all members.', NOW(), NOW(), FALSE),
+  (32, 6, 7, 'Stage Management Training', 'Training session for anyone interested in stage management and production.', NOW(), NOW(), FALSE);
 
 INSERT INTO joinrequest (request_id, initiator_user_id, target_club_id, reviewer_user_id, request_type, status, message, created_at, reviewed_at)
 VALUES
