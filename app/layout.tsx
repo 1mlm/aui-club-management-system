@@ -3,8 +3,8 @@ import { Outfit } from "next/font/google";
 import type { PropsWithChildren } from "react";
 import "@/styles/globals.css";
 import { Providers } from "@/components/Providers";
-import { SidebarProvider, SidebarInset } from "@/shadcn/ui/sidebar";
 import { AppSidebar } from "@/shadcn/cpns/app-sidebar";
+import { SidebarInset, SidebarProvider } from "@/shadcn/ui/sidebar";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -21,9 +21,7 @@ export default function RootLayout({ children }: PropsWithChildren) {
           <SidebarProvider>
             <AppSidebar />
             <SidebarInset>
-              <main className="flex flex-1 flex-col gap-4 p-4">
-                {children}
-              </main>
+              <main className="flex flex-1 flex-col gap-4 p-4">{children}</main>
             </SidebarInset>
           </SidebarProvider>
         </Providers>
