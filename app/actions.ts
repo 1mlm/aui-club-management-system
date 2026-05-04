@@ -8,6 +8,7 @@ import {
   updateUserAdminStatus as updateUserAdminStatusDb,
   updateUserDisplayName as updateUserDisplayNameDb,
 } from "@/db/admin";
+import { updateClubMemberStatus, updateClubMemberRole, updateClubInfo } from "@/db/club-management";
 
 export async function serverUpdateUserAdminStatus(
   userId: number,
@@ -44,4 +45,16 @@ export async function serverRejectJoinRequest(
   requestId: number,
 ): Promise<void> {
   await rejectJoinRequestDb(requestId);
+}
+
+export async function serverUpdateClubMemberStatus(clubId: number, userId: number, status: string) {
+  await updateClubMemberStatus(clubId, userId, status);
+}
+
+export async function serverUpdateClubMemberRole(clubId: number, userId: number, role: string) {
+  await updateClubMemberRole(clubId, userId, role);
+}
+
+export async function serverUpdateClubInfo(clubId: number, data: { name?: string, description?: string }) {
+  await updateClubInfo(clubId, data);
 }

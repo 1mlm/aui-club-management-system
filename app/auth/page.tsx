@@ -226,7 +226,7 @@ export default function AuthPage() {
               variant={mode === "signin" ? "secondary" : "ghost"}
               onClick={() => setMode("signin")}
             >
-              Sign In
+              <Icon icon={ICON_MAP.user.profile} className="mr-2" /> Sign In
             </Button>
             <Button
               type="button"
@@ -234,7 +234,7 @@ export default function AuthPage() {
               variant={mode === "register" ? "secondary" : "ghost"}
               onClick={() => setMode("register")}
             >
-              Register
+              <Icon icon={ICON_MAP.nav.users} className="mr-2" /> Register
             </Button>
           </div>
           <div>
@@ -326,11 +326,13 @@ export default function AuthPage() {
                 disabled={submitting || !canSubmit}
                 className="mx-auto flex w-full max-w-[20rem] bg-emerald-600 text-white shadow-[0_0_24px_color-mix(in_oklab,var(--foreground)_24%,transparent)] hover:bg-emerald-500"
               >
-                {submitting
-                  ? "Please wait..."
-                  : mode === "signin"
-                    ? "Sign In"
-                    : "Register"}
+                {submitting ? (
+                  "Please wait..."
+                ) : mode === "signin" ? (
+                  <span className="flex items-center gap-2"><Icon icon={ICON_MAP.user.profile} /> Sign In</span>
+                ) : (
+                  <span className="flex items-center gap-2"><Icon icon={ICON_MAP.nav.users} /> Register</span>
+                )}
               </Button>
             </div>
           </form>

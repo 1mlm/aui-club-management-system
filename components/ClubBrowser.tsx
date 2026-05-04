@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useMemo } from "react";
 import { ALLOWED_ICON_MAP } from "@/db/catalog";
@@ -148,7 +149,8 @@ function ClubCard({ club }: { club: ClubRecord }) {
     useDeterministicIconRotation(iconValues, club.id);
 
   return (
-    <div
+    <Link
+      href={`/clubs/${club.id}`}
       style={{
         backgroundColor: colorStyles.bg,
         borderColor: colorStyles.border,
@@ -156,8 +158,7 @@ function ClubCard({ club }: { club: ClubRecord }) {
         // @ts-expect-error
         "cornerShape": "squircle",
       }}
-      className="flex w-full max-w-[24rem] gap-4 rounded-full border-3 p-4 transition-all duration-300
-      hover:cursor-pointer! active:scale-95 hover:-translate-y-2"
+      className="flex w-full max-w-[24rem] gap-4 rounded-full border-3 p-4 transition-all duration-300 hover:cursor-pointer! active:scale-95 hover:-translate-y-2"
     >
       <div
         style={{
@@ -195,6 +196,6 @@ function ClubCard({ club }: { club: ClubRecord }) {
           {club.description}
         </p>
       </div>
-    </div>
+    </Link>
   );
 }
