@@ -9,8 +9,9 @@ import { cookies } from "next/headers";
 import { getUserById } from "@/db/auth";
 import { AUTH_COOKIE_NAME } from "@/db/auth-cookie";
 
-export default async function ClubDetailsPage({ params }: { params: { id: string } }) {
-  const clubId = parseInt(params.id, 10);
+export default async function ClubDetailsPage({ params }: { params: Promise<{ id: string }> }) {
+  const p = await params;
+  const clubId = parseInt(p.id, 10);
   if (isNaN(clubId)) return notFound();
 
   const club = await getClubById(clubId);
