@@ -1,6 +1,6 @@
 # AIMM Design System
 
-Reference doc for replicating this design system in other projects. Copy the relevant sections when prompting Claude Code.
+Reference doc for replicating this design system in other projects.
 
 ---
 
