@@ -29,10 +29,16 @@ const BASE_NAV = [
   { title: "SQL Simulator", url: "/queries", icon: ICON_MAP.nav.queries },
 ];
 
+const MEMBER_NAV = [
+  { title: "My Dashboard", url: "/dashboard", icon: ICON_MAP.nav.dashboard },
+  { title: "Create a Club", url: "/create-club", icon: ICON_MAP.nav.clubs },
+];
+
 const ADMIN_NAV = [
   { title: "Users", url: "/admin/users", icon: ICON_MAP.nav.users },
   { title: "Clubs", url: "/admin/clubs", icon: ICON_MAP.nav.clubs },
   { title: "Join Requests", url: "/admin/joinrequests", icon: ICON_MAP.nav.joinRequests },
+  { title: "Club Requests", url: "/admin/clubrequests", icon: ICON_MAP.nav.dashboard },
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
@@ -79,6 +85,26 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+
+        {user && (
+          <>
+            <SidebarSeparator />
+            <SidebarGroup>
+              <SidebarMenu>
+                {MEMBER_NAV.map((item) => (
+                  <SidebarMenuItem key={item.title}>
+                    <SidebarMenuButton asChild isActive={isActive(item.url)}>
+                      <Link href={item.url}>
+                        <Icon icon={item.icon} />
+                        <span>{item.title}</span>
+                      </Link>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                ))}
+              </SidebarMenu>
+            </SidebarGroup>
+          </>
+        )}
 
         {user?.isSystemAdmin && (
           <>

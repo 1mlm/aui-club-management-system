@@ -1,10 +1,11 @@
 import { notFound } from "next/navigation";
-import { getClubById, getClubMembers } from "@/db/queries";
+import { getClubById, getClubMembers, getUserJoinRequestStatus } from "@/db/queries";
 import { ALLOWED_ICON_MAP } from "@/db/catalog";
 import { Icon } from "@/shadcn/cpns/Icon";
 import { getClubColorStyles } from "@/util/clubStyles";
 import { ClubMembersClient } from "./ClubMembersClient";
 import { EditClubClient } from "./EditClubClient";
+import { JoinClubButton } from "./JoinClubButton";
 import { cookies } from "next/headers";
 import { getUserById } from "@/db/auth";
 import { AUTH_COOKIE_NAME } from "@/db/auth-cookie";
@@ -25,6 +26,7 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
   const currentUser = Number.isFinite(userId) ? await getUserById(userId) : null;
   
   let role = "none";
+  let joinRequestStatus: string | null = null;
   if (currentUser) {
       if (currentUser.id === club.owner_id || currentUser.isSystemAdmin) {
           role = "owner";
@@ -32,6 +34,8 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
           const membership = members.find(m => m.user_id === currentUser.id);
           if (membership) {
                role = membership.membership_role; // 'board_member' or 'member'
+          } else {
+              joinRequestStatus = await getUserJoinRequestStatus(currentUser.id, clubId);
           }
       }
   }
@@ -56,7 +60,15 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
                  <h1 className="text-3xl font-bold">{club.name}</h1>
                  <p className="mt-2 text-muted-foreground max-w-2xl">{club.description || "No description provided."}</p>
                </div>
-               <EditClubClient club={club} canManage={role === 'owner' || role === 'board_member'} />
+               <div className="flex items-center gap-2">
+                 <EditClubClient club={club} canManage={role === 'owner' || role === 'board_member'} />
+                 {currentUser && role === 'none' && (
+                   <JoinClubButton
+                     clubId={club.id}
+                     initialStatus={joinRequestStatus === 'pending' ? 'pending' : 'none'}
+                   />
+                 )}
+               </div>
            </div>
        </div>
 

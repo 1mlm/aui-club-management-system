@@ -45,3 +45,18 @@ export async function updateClubMemberRole(clubId: number, userId: number, role:
     [role, clubId, userId]
   );
 }
+
+export async function createJoinRequest(userId: number, clubId: number, message?: string): Promise<void> {
+  const pool = getDbPool();
+  // Check if a pending request already exists to avoid duplicates
+  const existing = await pool.query(
+    `SELECT request_id FROM joinrequest WHERE initiator_user_id = $1 AND target_club_id = $2 AND status = 'pending' LIMIT 1`,
+    [userId, clubId]
+  );
+  if (existing.rows.length > 0) throw new Error("You already have a pending request for this club.");
+  await pool.query(
+    `INSERT INTO joinrequest (initiator_user_id, target_club_id, request_type, status, message)
+     VALUES ($1, $2, 'join', 'pending', $3)`,
+    [userId, clubId, message ?? null]
+  );
+}

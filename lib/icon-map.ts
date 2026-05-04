@@ -1,5 +1,6 @@
 import {
   Cancel01Icon,
+  DashboardCircleIcon,
   DiscoverCircleIcon,
   LogoutIcon,
   PaintBrush04Icon,
@@ -15,6 +16,7 @@ import type { Hugeicon } from "@/util/hugeicons";
 export const ICON_MAP = {
   nav: {
     browse: DiscoverCircleIcon,
+    dashboard: DashboardCircleIcon,
     queries: SearchIcon,
     admin: Telescope01Icon,
     users: UserIcon,

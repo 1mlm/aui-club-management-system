@@ -40,7 +40,7 @@ export default function AdminLayout({
       <div className="mb-2">
         <h1 className="text-xl font-semibold">Admin Dashboard</h1>
         <p className="text-xs text-muted-foreground mt-0.5">
-          Manage users, clubs, and join requests
+          Manage users, clubs, join requests, and club creation requests
         </p>
       </div>
       {children}

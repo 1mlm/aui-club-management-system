@@ -202,7 +202,7 @@ export default function AuthPage() {
       }
 
       await refreshUser();
-      router.push("/");
+      router.push("/dashboard");
       router.refresh();
     } catch (submitError) {
       setError(

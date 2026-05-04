@@ -1,57 +1,32 @@
-import { AppSidebar } from "@/shadcn/cpns/app-sidebar"
-import {
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  BreadcrumbList,
-  BreadcrumbPage,
-  BreadcrumbSeparator,
-} from "@/shadcn/ui/breadcrumb"
-import { Separator } from "@/shadcn/ui/separator"
-import {
-  SidebarInset,
-  SidebarProvider,
-  SidebarTrigger,
-} from "@/shadcn/ui/sidebar"
+import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
+import { AUTH_COOKIE_NAME } from "@/db/auth-cookie";
+import { getUserById } from "@/db/auth";
+import { getClubsByOwnerId, getClubsByMemberId, getPendingRequestsForOwner } from "@/db/queries";
+import { DashboardClient } from "./DashboardClient";
 
-export default function Page() {
+export default async function DashboardPage() {
+  const cookieStore = await cookies();
+  const rawUserId = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+  const userId = rawUserId ? Number(rawUserId) : NaN;
+
+  if (!Number.isFinite(userId)) redirect("/auth");
+
+  const user = await getUserById(userId);
+  if (!user) redirect("/auth");
+
+  const [ownedClubs, memberClubs, pendingRequests] = await Promise.all([
+    getClubsByOwnerId(userId),
+    getClubsByMemberId(userId),
+    getPendingRequestsForOwner(userId),
+  ]);
+
   return (
-    <SidebarProvider
-      style={
-        {
-          "--sidebar-width": "19rem",
-        } as React.CSSProperties
-      }
-    >
-      <AppSidebar />
-      <SidebarInset>
-        <header className="flex h-16 shrink-0 items-center gap-2 px-4">
-          <SidebarTrigger className="-ml-1" />
-          <Separator
-            orientation="vertical"
-            className="mr-2 data-vertical:h-4 data-vertical:self-auto"
-          />
-          <Breadcrumb>
-            <BreadcrumbList>
-              <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="#">Build Your Application</BreadcrumbLink>
-              </BreadcrumbItem>
-              <BreadcrumbSeparator className="hidden md:block" />
-              <BreadcrumbItem>
-                <BreadcrumbPage>Data Fetching</BreadcrumbPage>
-              </BreadcrumbItem>
-            </BreadcrumbList>
-          </Breadcrumb>
-        </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-            <div className="aspect-video rounded-xl bg-muted/50" />
-          </div>
-          <div className="min-h-screen flex-1 rounded-xl bg-muted/50 md:min-h-min" />
-        </div>
-      </SidebarInset>
-    </SidebarProvider>
-  )
+    <DashboardClient
+      user={user}
+      ownedClubs={ownedClubs}
+      memberClubs={memberClubs}
+      pendingRequests={pendingRequests}
+    />
+  );
 }
