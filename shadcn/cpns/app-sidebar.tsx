@@ -118,6 +118,13 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                   </SidebarMenuButton>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="start" className="w-48">
+                  <DropdownMenuItem 
+                    className="cursor-pointer" 
+                    onSelect={() => window.dispatchEvent(new Event('start-tour'))}
+                  >
+                    <Icon icon={ICON_MAP.nav.browse} />
+                    <span>Take Tour</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive focus:text-destructive cursor-pointer" onSelect={() => signOut()}>
                     <Icon icon={ICON_MAP.user.logout} />
                     <span>Log out</span>

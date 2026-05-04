@@ -5,6 +5,7 @@ import { AdminTable, type TableColumn } from "@/components/AdminTable";
 import { serverUpdateClubMemberStatus, serverUpdateClubMemberRole } from "@/app/actions";
 import { ICON_MAP } from "@/lib/icon-map";
 import type { ClubMember } from "@/db/types";
+import { toast } from "sonner";
 
 export function ClubMembersClient({ initialMembers, clubId, currentUserRole }: { initialMembers: ClubMember[], clubId: number, currentUserRole: string }) {
   const [members, setMembers] = useState(initialMembers);
@@ -16,14 +17,17 @@ export function ClubMembersClient({ initialMembers, clubId, currentUserRole }: {
                const newStatus = action === "kick" ? "left" : "banned";
                await serverUpdateClubMemberStatus(clubId, member.user_id, newStatus);
                setMembers(members.filter(m => m.user_id !== member.user_id));
+               toast.success(`Member successfully ${action === "kick" ? "kicked" : "banned"}`);
           }
           if (action === "promote" || action === "demote") {
                const newRole = action === "promote" ? "board_member" : "member";
                await serverUpdateClubMemberRole(clubId, member.user_id, newRole);
                setMembers(members.map(m => m.user_id === member.user_id ? { ...m, membership_role: newRole } : m));
+               toast.success(`Member successfully ${action}d`);
           }
       } catch (e) {
           console.error("Action error", e);
+          toast.error("Failed to perform the requested action.");
       }
   };
 

@@ -62,6 +62,15 @@ export default async function ClubDetailsPage({ params }: { params: { id: string
        <div className="pt-4">
            <ClubMembersClient initialMembers={members} clubId={club.id} currentUserRole={role} />
        </div>
+
+       <div className="pt-8 border-t mt-8">
+           <h2 className="text-xl font-semibold mb-4 text-foreground/80 flex items-center gap-2">
+             <Icon icon={ALLOWED_ICON_MAP.KNOWLEDGE} className="size-5" /> Recent Announcements
+           </h2>
+           <div className="rounded-xl border border-dashed p-10 flex flex-col items-center justify-center text-center">
+               <p className="text-muted-foreground/50">No announcements have been posted yet.</p>
+           </div>
+       </div>
     </div>
   )
 }

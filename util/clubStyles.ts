@@ -34,10 +34,10 @@ export function getClubColorStyles(color?: ClubColor): ClubColorStyles {
   const rgb = hexToRgb(hex);
 
   return {
-    bg: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`,
-    text: hex,
-    border: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`,
-    shadow: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`,
+    bg: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`,
+    text: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.85)`,
+    border: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
+    shadow: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`,
   };
 }
 

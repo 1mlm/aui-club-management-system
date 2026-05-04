@@ -5,6 +5,8 @@ import "@/styles/globals.css";
 import { Providers } from "@/components/Providers";
 import { AppSidebar } from "@/shadcn/cpns/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/shadcn/ui/sidebar";
+import { Toaster } from "sonner";
+import { TourProvider } from "@/components/TourProvider";
 
 const outfit = Outfit({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -25,6 +27,8 @@ export default function RootLayout({ children }: PropsWithChildren) {
             </SidebarInset>
           </SidebarProvider>
         </Providers>
+        <TourProvider />
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

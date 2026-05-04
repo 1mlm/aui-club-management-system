@@ -20,6 +20,7 @@ import {
 } from "@/shadcn/ui/alert-dialog";
 import { serverUpdateClubInfo } from "@/app/actions";
 import { ClubRecord } from "@/db/types";
+import { toast } from "sonner";
 
 export function EditClubClient({ club, canManage }: { club: ClubRecord, canManage: boolean }) {
   const router = useRouter();
@@ -35,9 +36,11 @@ export function EditClubClient({ club, canManage }: { club: ClubRecord, canManag
           setLoading(true);
           await serverUpdateClubInfo(club.id, { name, description });
           setOpen(false);
+          toast.success("Club details updated successfully!");
           router.refresh();
       } catch (e) {
           console.error(e);
+          toast.error("Failed to update club details.");
       } finally {
           setLoading(false);
       }
