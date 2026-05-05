@@ -1,5 +1,5 @@
 import { getDbPool } from "@/db/client";
-import type { ClubQueryRow, ClubRecord } from "@/db/types";
+import type { ClubQueryRow, ClubRecord, PostQueryRow, PostRecord } from "@/db/types";
 import { validateClubColor, validateClubIcon } from "@/db/validators";
 
 const LIST_CLUBS_QUERY = `
@@ -45,6 +45,23 @@ const GET_CLUB_MEMBERS = `
     m.joined_at ASC;
 `;
 
+const GET_CLUB_POSTS = `
+  SELECT
+    p.post_id AS id,
+    p.club_id,
+    p.user_id,
+    p.title,
+    p.content,
+    p.created_at,
+    p.updated_at,
+    p.is_deleted,
+    u.display_name AS author_display_name
+  FROM post p
+  JOIN users u ON u.user_id = p.user_id
+  WHERE p.club_id = $1 AND p.is_deleted = FALSE
+  ORDER BY p.created_at DESC;
+`;
+
 export async function listClubs(): Promise<ClubRecord[]> {
   const pool = getDbPool();
   const result = await pool.query<ClubQueryRow>(LIST_CLUBS_QUERY);
@@ -82,5 +99,22 @@ export async function getClubMembers(clubId: number): Promise<any[]> {
   return result.rows.map(row => ({
       ...row,
       id: row.user_id
+  }));
+}
+
+export async function getClubPosts(clubId: number): Promise<PostRecord[]> {
+  const pool = getDbPool();
+  const result = await pool.query<PostQueryRow>(GET_CLUB_POSTS, [clubId]);
+
+  return result.rows.map((row) => ({
+    id: row.id,
+    club_id: row.club_id,
+    user_id: row.user_id,
+    title: row.title,
+    content: row.content,
+    created_at: row.created_at,
+    updated_at: row.updated_at,
+    is_deleted: row.is_deleted,
+    author_display_name: row.author_display_name,
   }));
 }
