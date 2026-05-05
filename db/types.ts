@@ -52,3 +52,41 @@ export type PostQueryRow = {
   is_deleted: boolean;
   author_display_name: string;
 };
+
+export type MyClub = {
+  id: number;
+  name: string;
+  color: ClubColor | null;
+  icon: ClubIconKey | null;
+  role: "owner" | "board_member" | "member";
+};
+
+export type FeedPost = {
+  id: number;
+  club_id: number;
+  club_name: string;
+  club_color: ClubColor | null;
+  club_icon: ClubIconKey | null;
+  title: string;
+  content: string;
+  created_at: Date | string;
+  author_display_name: string;
+};
+
+export type ClubJoinRequest = {
+  id: number;
+  user_id: number;
+  user_email: string;
+  user_display_name: string;
+  message: string | null;
+  created_at: Date | string;
+  status: "pending" | "approved" | "rejected";
+};
+
+export type MyJoinRequest = {
+  id: number;
+  club_id: number;
+  club_name: string;
+  status: "pending" | "approved" | "rejected";
+  created_at: Date | string;
+};
