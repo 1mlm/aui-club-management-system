@@ -1,8 +1,5 @@
 # aui-clubs
 
-this project uses postgres with pg only.
-no prisma. no drizzle.
-
 ## setup env
 
 1. create a file named `.env` in the project root.
@@ -12,18 +9,16 @@ no prisma. no drizzle.
 example local values:
 
 ```env
-DB_USER=lmalik
-DB_PASSWORD=lmalik
+DB_USER=nassem
+DB_PASSWORD=nassem
 ```
 
-note: assumes postgres is on localhost:5432.
-database name: aui_clubs.
+> note: assumes postgres is on localhost:5432.
+> database name: aui_clubs.
 
-## db scripts
+Make sure you saved the file (File > Save or `Ctrl` + `S`)
 
-`npm run db:test`
-- checks if postgres connection works.
-
+4. Run this to create the database
 `npm run db:reset`
 - full reset.
 - terminates active db connections.
@@ -33,11 +28,8 @@ database name: aui_clubs.
 	- base schema from `db/sql/create.sql`
 	- seed from `db/sql/populate.sql`
 
-`npm run db:seed`
-- reapplies only the seed file.
+All users use password `Password123!`.
 
-seeded users use `Password123!`.
-
-## run app
+5. run app
 
 `npm run dev`
