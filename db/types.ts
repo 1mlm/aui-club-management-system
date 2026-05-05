@@ -7,6 +7,7 @@ export type ClubRecord = {
   description: string | null;
   color: ClubColor | null;
   icon: ClubIconKey | null;
+  member_count: number;
 };
 
 export type ClubQueryRow = {
@@ -16,6 +17,7 @@ export type ClubQueryRow = {
   description: string | null;
   color: string | null;
   icon: string | null;
+  member_count: number;
 };
 
 export type ClubMember = {

@@ -9,9 +9,12 @@ const LIST_CLUBS_QUERY = `
     c.name AS name,
     c.description AS description,
     c.main_color AS color,
-    c.icon_name AS icon
+    c.icon_name AS icon,
+    COUNT(m.membership_id) FILTER (WHERE m.membership_status = 'active') AS member_count
   FROM club c
+  LEFT JOIN membership m ON m.club_id = c.club_id
   WHERE c.status = 'active'
+  GROUP BY c.club_id
   ORDER BY c.club_id ASC;
 `;
 
@@ -22,9 +25,12 @@ const GET_CLUB_BY_ID = `
     c.name AS name,
     c.description AS description,
     c.main_color AS color,
-    c.icon_name AS icon
+    c.icon_name AS icon,
+    COUNT(m.membership_id) FILTER (WHERE m.membership_status = 'active') AS member_count
   FROM club c
-  WHERE c.club_id = $1 AND c.status = 'active';
+  LEFT JOIN membership m ON m.club_id = c.club_id
+  WHERE c.club_id = $1 AND c.status = 'active'
+  GROUP BY c.club_id;
 `;
 
 const GET_CLUB_MEMBERS = `
@@ -73,6 +79,7 @@ export async function listClubs(): Promise<ClubRecord[]> {
     description: row.description,
     color: validateClubColor(row.color),
     icon: validateClubIcon(row.icon),
+    member_count: Number(row.member_count) || 0,
   }));
 }
 
@@ -90,6 +97,7 @@ export async function getClubById(id: number): Promise<ClubRecord | null> {
     description: row.description,
     color: validateClubColor(row.color),
     icon: validateClubIcon(row.icon),
+    member_count: Number(row.member_count) || 0,
   };
 }
 
