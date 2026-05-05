@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { ClubBrowser } from "@/components/ClubBrowser";
 import { listClubs } from "@/db/queries";
 
@@ -12,7 +13,9 @@ export default async function Page() {
           {clubs.length} clubs
         </span>
       </div>
-      <ClubBrowser clubs={clubs} />
+      <Suspense fallback={null}>
+        <ClubBrowser clubs={clubs} />
+      </Suspense>
     </div>
   );
 }
