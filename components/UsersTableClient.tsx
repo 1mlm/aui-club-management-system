@@ -112,6 +112,14 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
   };
 
   const columns: TableColumn<AdminUser>[] = [
+    {
+      key: "id",
+      label: "ID",
+      icon: ICON_MAP.nav.browse,
+      render: (value) => (
+        <span className="font-mono text-xs text-muted-foreground">#{String(value)}</span>
+      ),
+    },
     { key: "email", label: "Email", icon: ICON_MAP.nav.users },
     { key: "displayName", label: "Display Name", icon: ICON_MAP.user.profile },
     {

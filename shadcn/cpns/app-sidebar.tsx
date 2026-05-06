@@ -178,7 +178,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                     <div className="flex flex-col gap-0.5 leading-none ml-1">
                       <span className="font-medium text-sm">{user.displayName}</span>
                       <span className="text-xs text-muted-foreground">
-                        {user.clubCount} {user.clubCount === 1 ? "Club" : "Clubs"}
+                        {user.clubCount} {user.clubCount === 1 ? "Club" : "Clubs"} &middot; ID #{user.id}
                       </span>
                     </div>
                   </SidebarMenuButton>
