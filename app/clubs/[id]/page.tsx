@@ -93,6 +93,7 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
                 userId={currentUser.id}
                 currentRole={role}
                 joinRequestStatus={joinRequestStatus?.status ?? null}
+                colorStyles={colorStyles}
               />
             )}
             <EditClubClient club={club} canManage={canManage} />
@@ -124,7 +125,7 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
         {posts.length > 0 ? (
           <div className="space-y-4">
             {posts.map((post) => (
-              <div key={post.id} className="rounded-xl border p-6 bg-card">
+              <div key={post.id} className="rounded-xl border p-6 bg-card" style={{ borderColor: colorStyles.border }}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h3 className="text-lg font-semibold">{post.title}</h3>
@@ -154,6 +155,7 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
                     initialCount={post.like_count}
                     initialLiked={post.user_liked}
                     loggedIn={!!currentUser}
+                    colorStyles={colorStyles}
                   />
                 </div>
               </div>
