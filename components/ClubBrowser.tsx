@@ -243,7 +243,15 @@ function ClubCard({ club }: { club: ClubRecord }) {
 
       {/* Name + description */}
       <div className="flex-1 min-w-0">
-        <h2 className="font-semibold text-base leading-snug line-clamp-1">{club.name}</h2>
+        <div className="flex items-center gap-2 flex-wrap">
+          <h2 className="font-semibold text-base leading-snug line-clamp-1">{club.name}</h2>
+          <span
+            className="text-xs font-mono px-1.5 py-0.5 rounded border shrink-0"
+            style={{ borderColor: colorStyles.border, color: colorStyles.text, backgroundColor: colorStyles.bg }}
+          >
+            #{club.id}
+          </span>
+        </div>
         <p className="mt-1.5 text-sm leading-relaxed text-muted-foreground line-clamp-3">
           {club.description || "No description provided."}
         </p>
