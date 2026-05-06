@@ -232,7 +232,7 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
       />
 
       <AlertDialog open={!!dialog.type}>
-        <AlertDialogContent>
+        <AlertDialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto my-6">
           {dialog.type === "status" && dialog.club && (
             <>
               <AlertDialogHeader>
@@ -306,7 +306,7 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>Club Color</Label>
                         <ColorPicker
@@ -351,7 +351,7 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-4">
                       <div className="space-y-2">
                         <Label>Club Color</Label>
                         <ColorPicker

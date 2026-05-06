@@ -85,7 +85,6 @@ export function AdminTable<T extends { id?: number }>({
       {title && (
         <div className="flex items-center justify-between">
           <h1 className="text-xl font-semibold">{title}</h1>
-          <span className="text-xs text-muted-foreground tabular-nums">{filteredData.length} items</span>
         </div>
       )}
 
@@ -102,7 +101,7 @@ export function AdminTable<T extends { id?: number }>({
               onChange={(e) => setSearch(e.target.value)}
               className="h-10"
             />
-            <InputGroupAddon className="text-xs text-muted-foreground tabular-nums px-3">
+            <InputGroupAddon align="inline-end" className="text-xs text-muted-foreground tabular-nums px-3">
               {filteredData.length} {filteredData.length === 1 ? "result" : "results"}
             </InputGroupAddon>
           </InputGroup>

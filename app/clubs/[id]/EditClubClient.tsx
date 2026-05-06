@@ -63,7 +63,7 @@ export function EditClubClient({ club, canManage }: { club: ClubRecord, canManag
          </Button>
 
          <AlertDialog open={open} onOpenChange={setOpen}>
-            <AlertDialogContent>
+            <AlertDialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto my-6">
                 <AlertDialogHeader>
                     <AlertDialogTitle>Edit Club Profile</AlertDialogTitle>
                     <AlertDialogDescription>
@@ -81,7 +81,7 @@ export function EditClubClient({ club, canManage }: { club: ClubRecord, canManag
                         <Textarea value={description} onChange={e => setDescription(e.target.value)} />
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 gap-4">
                         <div className="space-y-3">
                             <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Club Color</Label>
                             <ColorPicker value={color} onChange={setColor} />

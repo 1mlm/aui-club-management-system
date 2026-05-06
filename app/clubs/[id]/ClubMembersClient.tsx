@@ -34,11 +34,11 @@ export function ClubMembersClient({ initialMembers, clubId, currentUserRole }: {
 
   const columns: TableColumn<ClubMember>[] = [
       { key: "display_name", label: "Name", icon: ICON_MAP.nav.users },
-      { key: "email", label: "Email", icon: ICON_MAP.user.profile },
-      { 
-        key: "membership_role", 
-        label: "Role", 
-        icon: ICON_MAP.actions.admin,
+      { key: "email", label: "Email", icon: ICON_MAP.user.mail },
+      {
+        key: "membership_role",
+        label: "Role",
+        icon: ICON_MAP.user.role,
         render: (val) => <StatusBadge type="membership_role" value={val as string} />
       },
       { 
