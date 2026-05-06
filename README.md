@@ -18,7 +18,10 @@ DB_PASSWORD=nassem
 
 Make sure you saved the file (File > Save or `Ctrl` + `S`)
 
-4. Run this to create the database
+4. Then install all dependencies (things the project depend on), run this in the terminal
+`npm run install`
+
+5. Run this to create the database
 `npm run db:reset`
 - full reset.
 - terminates active db connections.
@@ -30,6 +33,6 @@ Make sure you saved the file (File > Save or `Ctrl` + `S`)
 
 All users use password `Password123!`.
 
-5. run app
+6. run app
 
 `npm run dev`
