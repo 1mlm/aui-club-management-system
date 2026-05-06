@@ -11,7 +11,8 @@
     "biome:fix": "biome check . --write",
     "db:test": "tsx scripts/db-test.ts",
     "db:reset": "tsx scripts/db-reset.ts",
-    "db:seed": "tsx scripts/db-seed.ts"
+    "db:seed": "tsx scripts/db-seed.ts",
+    "all": "npm install && npm run db:reset && npm run dev"
   },
   "dependencies": {
     "@base-ui/react": "^1.2.0",
