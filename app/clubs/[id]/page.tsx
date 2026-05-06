@@ -9,6 +9,8 @@ import { EditClubClient } from "./EditClubClient";
 import { CreatePostClient } from "./CreatePostClient";
 import { JoinClubClient } from "./JoinClubClient";
 import { ClubJoinRequestsClient } from "./ClubJoinRequestsClient";
+import { PostActionsClient } from "./PostActionsClient";
+import { LikeButton } from "./LikeButton";
 import { cookies } from "next/headers";
 import { getUserById } from "@/db/auth";
 import { AUTH_COOKIE_NAME } from "@/db/auth-cookie";
@@ -28,7 +30,7 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
 
   const [members, posts] = await Promise.all([
     getClubMembers(clubId),
-    getClubPosts(clubId),
+    getClubPosts(clubId, currentUser?.id),
   ]);
 
   let role = "none";
@@ -116,14 +118,35 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
             {posts.map((post) => (
               <div key={post.id} className="rounded-xl border p-6 bg-card">
                 <div className="flex items-start justify-between mb-3">
-                  <h3 className="text-lg font-semibold">{post.title}</h3>
-                  <span className="text-sm text-muted-foreground whitespace-nowrap ml-4">
-                    {new Date(post.created_at).toLocaleDateString()}
-                  </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className="text-lg font-semibold">{post.title}</h3>
+                    {post.is_pinned && (
+                      <span className="text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 px-2 py-0.5 rounded-full">
+                        Pinned
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0 ml-4">
+                    <span className="text-sm text-muted-foreground whitespace-nowrap">
+                      {new Date(post.created_at).toLocaleDateString()}
+                    </span>
+                    {canManage && <PostActionsClient post={post} />}
+                  </div>
                 </div>
-                <p className="text-muted-foreground mb-3">{post.content}</p>
-                <div className="text-sm text-muted-foreground">
-                  Posted by {post.author_display_name}
+                <p className="text-muted-foreground mb-4">{post.content}</p>
+                <div className="flex items-center justify-between">
+                  <div className="text-sm text-muted-foreground">
+                    Posted by {post.author_display_name}
+                    {post.updated_at && (
+                      <span className="ml-2 text-xs">(edited)</span>
+                    )}
+                  </div>
+                  <LikeButton
+                    postId={post.id}
+                    initialCount={post.like_count}
+                    initialLiked={post.user_liked}
+                    loggedIn={!!currentUser}
+                  />
                 </div>
               </div>
             ))}

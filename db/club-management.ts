@@ -100,3 +100,84 @@ export async function rejectClubJoinRequest(requestId: number) {
     [requestId]
   );
 }
+
+export async function waitlistJoinRequest(requestId: number) {
+  const pool = getDbPool();
+  await pool.query(
+    "UPDATE joinrequest SET status = 'waitlisted', reviewed_at = NOW() WHERE request_id = $1",
+    [requestId]
+  );
+}
+
+export async function promoteFromWaitlist(requestId: number) {
+  const pool = getDbPool();
+  const result = await pool.query<{ initiator_user_id: number; target_club_id: number }>(
+    "SELECT initiator_user_id, target_club_id FROM joinrequest WHERE request_id = $1",
+    [requestId]
+  );
+  const row = result.rows[0];
+  if (!row) return;
+  await pool.query(
+    "UPDATE joinrequest SET status = 'approved', reviewed_at = NOW() WHERE request_id = $1",
+    [requestId]
+  );
+  await pool.query(
+    `INSERT INTO membership (user_id, club_id, membership_status, membership_role)
+     VALUES ($1, $2, 'active', 'member')
+     ON CONFLICT (user_id, club_id) DO UPDATE SET membership_status = 'active', left_at = NULL`,
+    [row.initiator_user_id, row.target_club_id]
+  );
+}
+
+export async function deletePost(postId: number): Promise<void> {
+  const pool = getDbPool();
+  await pool.query("UPDATE post SET is_deleted = TRUE WHERE post_id = $1", [postId]);
+  try {
+    await pool.query(
+      "INSERT INTO activity_log (action, detail) VALUES ('post_deleted', $1)",
+      [String(postId)]
+    );
+  } catch {}
+}
+
+export async function editPost(postId: number, title: string, content: string): Promise<void> {
+  const pool = getDbPool();
+  await pool.query(
+    "UPDATE post SET title = $1, content = $2, updated_at = NOW() WHERE post_id = $3",
+    [title.trim(), content.trim(), postId]
+  );
+}
+
+export async function togglePinPost(postId: number, pin: boolean): Promise<void> {
+  const pool = getDbPool();
+  await pool.query("UPDATE post SET is_pinned = $1 WHERE post_id = $2", [pin, postId]);
+  try {
+    await pool.query(
+      "INSERT INTO activity_log (action, detail) VALUES ($1, $2)",
+      [pin ? 'post_pinned' : 'post_unpinned', String(postId)]
+    );
+  } catch {}
+}
+
+export async function togglePostLike(postId: number, userId: number): Promise<{ liked: boolean; count: number }> {
+  const pool = getDbPool();
+  const existing = await pool.query(
+    "SELECT like_id FROM post_like WHERE post_id = $1 AND user_id = $2",
+    [postId, userId]
+  );
+  let liked: boolean;
+  if (existing.rows.length > 0) {
+    await pool.query("DELETE FROM post_like WHERE post_id = $1 AND user_id = $2", [postId, userId]);
+    await pool.query("UPDATE post SET like_count = GREATEST(0, like_count - 1) WHERE post_id = $1", [postId]);
+    liked = false;
+  } else {
+    await pool.query("INSERT INTO post_like (post_id, user_id) VALUES ($1, $2) ON CONFLICT DO NOTHING", [postId, userId]);
+    await pool.query("UPDATE post SET like_count = like_count + 1 WHERE post_id = $1", [postId]);
+    liked = true;
+  }
+  const countResult = await pool.query<{ like_count: number }>(
+    "SELECT like_count FROM post WHERE post_id = $1",
+    [postId]
+  );
+  return { liked, count: Number(countResult.rows[0]?.like_count ?? 0) };
+}

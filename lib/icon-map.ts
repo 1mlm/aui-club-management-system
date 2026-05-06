@@ -2,6 +2,7 @@ import {
   Add01Icon,
   ArrowLeft01Icon,
   Cancel01Icon,
+  DashboardCircleIcon,
   DiscoverCircleIcon,
   Edit01Icon,
   Home01Icon,
@@ -22,6 +23,7 @@ import type { Hugeicon } from "@/util/hugeicons";
 export const ICON_MAP = {
   nav: {
     browse: DiscoverCircleIcon,
+    dashboard: DashboardCircleIcon,
     queries: SearchIcon,
     admin: Telescope01Icon,
     users: UserIcon,
