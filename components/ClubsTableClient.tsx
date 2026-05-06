@@ -167,6 +167,14 @@ export function ClubsTableClient({ initialClubs }: ClubsTableClientProps) {
 
   const columns: TableColumn<AdminClub>[] = [
     {
+      key: "id",
+      label: "ID",
+      icon: ICON_MAP.nav.browse,
+      render: (value) => (
+        <span className="font-mono text-xs text-muted-foreground">#{String(value)}</span>
+      ),
+    },
+    {
       key: "name",
       label: "Club Name",
       icon: ICON_MAP.nav.clubs,

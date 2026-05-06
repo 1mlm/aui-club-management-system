@@ -71,7 +71,15 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
 
         <div className="flex-1 text-center md:text-left flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-bold">{club.name}</h1>
+            <div className="flex items-center gap-3 flex-wrap justify-center md:justify-start">
+              <h1 className="text-3xl font-bold">{club.name}</h1>
+              <span
+                className="text-sm font-mono px-2 py-0.5 rounded border self-center"
+                style={{ borderColor: colorStyles.border, color: colorStyles.text, backgroundColor: colorStyles.bg }}
+              >
+                ID #{club.id}
+              </span>
+            </div>
             <p className="mt-2 text-muted-foreground max-w-2xl">{club.description || "No description provided."}</p>
             <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground justify-center md:justify-start">
               <Icon icon={ICON_MAP.nav.users} className="size-4" />
