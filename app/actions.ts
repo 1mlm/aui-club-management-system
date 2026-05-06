@@ -8,8 +8,11 @@ import {
   updateClubStatus as updateClubStatusDb,
   updateUserAdminStatus as updateUserAdminStatusDb,
   updateUserDisplayName as updateUserDisplayNameDb,
+  adminCreateUser,
+  adminCreateClub,
+  adminDeleteClub,
 } from "@/db/admin";
-import { updateClubMemberStatus, updateClubMemberRole, updateClubInfo, createJoinRequest } from "@/db/club-management";
+import { updateClubMemberStatus, updateClubMemberRole, updateClubInfo, createPost, requestJoinClub, leaveClub, approveClubJoinRequest, rejectClubJoinRequest } from "@/db/club-management";
 import { AUTH_COOKIE_NAME } from "@/db/auth-cookie";
 import {
   submitClubCreationRequest,
@@ -62,16 +65,46 @@ export async function serverUpdateClubMemberRole(clubId: number, userId: number,
   await updateClubMemberRole(clubId, userId, role);
 }
 
-export async function serverUpdateClubInfo(clubId: number, data: { name?: string, description?: string }) {
+export async function serverUpdateClubInfo(clubId: number, data: { name?: string, description?: string, main_color?: string, icon_name?: string }) {
   await updateClubInfo(clubId, data);
 }
 
-export async function serverCreateJoinRequest(clubId: number): Promise<void> {
-  const cookieStore = await cookies();
-  const rawUserId = cookieStore.get(AUTH_COOKIE_NAME)?.value;
-  const userId = rawUserId ? Number(rawUserId) : NaN;
-  if (!Number.isFinite(userId)) throw new Error("You must be logged in to request to join a club.");
-  await createJoinRequest(userId, clubId);
+export async function serverCreatePost(clubId: number, userId: number, title: string, content: string) {
+  await createPost(clubId, userId, title, content);
+}
+
+export async function serverRequestJoinClub(clubId: number, userId: number, message?: string) {
+  await requestJoinClub(clubId, userId, message);
+}
+
+export async function serverLeaveClub(clubId: number, userId: number) {
+  await leaveClub(clubId, userId);
+}
+
+export async function serverApproveClubJoinRequest(requestId: number) {
+  await approveClubJoinRequest(requestId);
+}
+
+export async function serverRejectClubJoinRequest(requestId: number) {
+  await rejectClubJoinRequest(requestId);
+}
+
+export async function serverAdminCreateUser(email: string, displayName: string, passwordRaw: string) {
+  return await adminCreateUser(email, displayName, passwordRaw);
+}
+
+export async function serverAdminCreateClub(
+  name: string,
+  ownerEmail: string,
+  description: string,
+  mainColor: string,
+  iconName: string
+) {
+  return await adminCreateClub(name, ownerEmail, description, mainColor, iconName);
+}
+
+export async function serverAdminDeleteClub(clubId: number) {
+  await adminDeleteClub(clubId);
 }
 
 export async function serverSubmitClubCreationRequest(data: {

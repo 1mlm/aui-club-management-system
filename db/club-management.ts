@@ -46,17 +46,57 @@ export async function updateClubMemberRole(clubId: number, userId: number, role:
   );
 }
 
-export async function createJoinRequest(userId: number, clubId: number, message?: string): Promise<void> {
+export async function createPost(clubId: number, userId: number, title: string, content: string) {
   const pool = getDbPool();
-  // Check if a pending request already exists to avoid duplicates
-  const existing = await pool.query(
-    `SELECT request_id FROM joinrequest WHERE initiator_user_id = $1 AND target_club_id = $2 AND status = 'pending' LIMIT 1`,
-    [userId, clubId]
-  );
-  if (existing.rows.length > 0) throw new Error("You already have a pending request for this club.");
   await pool.query(
-    `INSERT INTO joinrequest (initiator_user_id, target_club_id, request_type, status, message)
-     VALUES ($1, $2, 'join', 'pending', $3)`,
+    "INSERT INTO post (club_id, user_id, title, content) VALUES ($1, $2, $3, $4)",
+    [clubId, userId, title.trim(), content.trim()]
+  );
+}
+
+export async function requestJoinClub(clubId: number, userId: number, message?: string) {
+  const pool = getDbPool();
+  await pool.query(
+    `INSERT INTO joinrequest (initiator_user_id, target_club_id, message, status)
+     VALUES ($1, $2, $3, 'pending')
+     ON CONFLICT DO NOTHING`,
     [userId, clubId, message ?? null]
+  );
+}
+
+export async function leaveClub(clubId: number, userId: number) {
+  const pool = getDbPool();
+  await pool.query(
+    "UPDATE membership SET membership_status = 'left', left_at = NOW() WHERE club_id = $1 AND user_id = $2",
+    [clubId, userId]
+  );
+}
+
+export async function approveClubJoinRequest(requestId: number) {
+  const pool = getDbPool();
+  const result = await pool.query<{ initiator_user_id: number; target_club_id: number }>(
+    "SELECT initiator_user_id, target_club_id FROM joinrequest WHERE request_id = $1",
+    [requestId]
+  );
+  const row = result.rows[0];
+  if (!row) return;
+
+  await pool.query(
+    "UPDATE joinrequest SET status = 'approved', reviewed_at = NOW() WHERE request_id = $1",
+    [requestId]
+  );
+  await pool.query(
+    `INSERT INTO membership (user_id, club_id, membership_status, membership_role)
+     VALUES ($1, $2, 'active', 'member')
+     ON CONFLICT (user_id, club_id) DO UPDATE SET membership_status = 'active', left_at = NULL`,
+    [row.initiator_user_id, row.target_club_id]
+  );
+}
+
+export async function rejectClubJoinRequest(requestId: number) {
+  const pool = getDbPool();
+  await pool.query(
+    "UPDATE joinrequest SET status = 'rejected', reviewed_at = NOW() WHERE request_id = $1",
+    [requestId]
   );
 }

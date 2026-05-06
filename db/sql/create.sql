@@ -40,35 +40,24 @@ CREATE TABLE club (
     CONSTRAINT chk_club_color CHECK (
         main_color IS NULL
         OR UPPER(main_color) IN (
-            'BLUE',
-            'BLACK',
-            'RED',
-            'GREEN',
-            'AMBER',
-            'ORANGE',
-            'YELLOW',
-            'CYAN',
-            'PINK',
-            'PURPLE'
+            'BLUE', 'BLACK', 'RED', 'GREEN', 'AMBER',
+            'ORANGE', 'YELLOW', 'CYAN', 'PINK', 'PURPLE',
+            'SLATE', 'TEAL', 'INDIGO', 'ROSE', 'SKY', 'VIOLET',
+            'LIME', 'EMERALD', 'FUCHSIA'
         )
     ),
     CONSTRAINT chk_club_icon_name CHECK (
         icon_name IS NULL
         OR icon_name IN (
-            'ADVENTURE',
-            'AI_SPARKLES',
-            'CAMERA',
-            'CHESS_KING',
-            'CODE_TERMINAL',
-            'COOKBOOK',
-            'FOOTBALL',
-            'KNOWLEDGE',
-            'LAUREL_WREATH',
-            'MUSIC_NOTE',
-            'PAINT_BOARD',
-            'SUPER_MARIO',
-            'TENNIS_RACKET',
-            'THEATER_MASK'
+            'ADVENTURE', 'AI_SPARKLES', 'BICYCLE', 'BOOK_OPEN', 'BRIEFCASE',
+            'CAMERA', 'CAMERA_HD', 'CHESS', 'CHESS_KING', 'CODE_TERMINAL',
+            'COOKBOOK', 'DUMBBELL', 'FILM', 'FOOTBALL', 'GAME_CONTROLLER',
+            'GLOBE', 'KNOWLEDGE', 'LAUREL_WREATH', 'LEAF', 'MEGAPHONE',
+            'MORTARBOARD', 'MUSIC_NOTE', 'PAINT_BOARD', 'STAR', 'SUPER_MARIO',
+            'SWIMMING', 'TENNIS_RACKET', 'TEST_TUBE', 'THEATER_MASK', 'TREE',
+            'VOLLEYBALL', 'BRAIN', 'CPU', 'COFFEE', 'HEART', 'ROCKET',
+            'SHIELD', 'TROPHY', 'PIZZA', 'UMBRELLA', 'CLOUD', 'MOON',
+            'SUN', 'ANCHOR', 'TARGET'
         )
     )
 );
@@ -87,13 +76,7 @@ CREATE TABLE membership (
     CONSTRAINT fk_membership_invited FOREIGN KEY (invited_by) REFERENCES users (user_id) ON UPDATE CASCADE,
     CONSTRAINT uq_membership_user_club UNIQUE (user_id, club_id),
     CONSTRAINT chk_membership_status CHECK (
-        membership_status IN (
-            'pending',
-            'active',
-            'rejected',
-            'left',
-            'banned'
-        )
+        membership_status IN ('pending', 'active', 'rejected', 'left', 'banned')
     ),
     CONSTRAINT chk_membership_role CHECK (
         membership_role IN ('board_member', 'member')
@@ -109,13 +92,8 @@ CREATE TABLE post (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
-
-    CONSTRAINT fk_post_club
-      FOREIGN KEY (club_id)
-      REFERENCES club (club_id) ON UPDATE CASCADE,
-    CONSTRAINT fk_post_user
-      FOREIGN KEY (user_id)
-      REFERENCES users (user_id) ON UPDATE CASCADE
+    CONSTRAINT fk_post_club FOREIGN KEY (club_id) REFERENCES club (club_id) ON UPDATE CASCADE,
+    CONSTRAINT fk_post_user FOREIGN KEY (user_id) REFERENCES users (user_id) ON UPDATE CASCADE
 );
 
 CREATE TABLE joinrequest (
@@ -132,11 +110,7 @@ CREATE TABLE joinrequest (
     CONSTRAINT fk_joinrequest_reviewer FOREIGN KEY (reviewer_user_id) REFERENCES users (user_id) ON UPDATE CASCADE,
     CONSTRAINT fk_joinrequest_club FOREIGN KEY (target_club_id) REFERENCES club (club_id) ON UPDATE CASCADE,
     CONSTRAINT chk_joinrequest_status CHECK (
-        status IN (
-            'pending',
-            'approved',
-            'rejected'
-        )
+        status IN ('pending', 'approved', 'rejected')
     )
 );
 

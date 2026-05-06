@@ -90,7 +90,7 @@ export default function QueriesPage() {
         </div>
       </div>
 
-      <SimulatorClient exampleQueries={EXAMPLE_QUERIES} />
+      <SimulatorClient exampleQueries={[...EXAMPLE_QUERIES]} />
 
       <div className="grid gap-4 pt-4">
         <h2 className="text-lg font-semibold">Example References</h2>
