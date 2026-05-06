@@ -18,7 +18,9 @@ export type AdminClub = {
 
 export type AdminJoinRequest = {
   id: number;
+  userId: number;
   userEmail: string;
+  userDisplayName: string;
   clubName: string;
   status: string;
   createdAt: string;

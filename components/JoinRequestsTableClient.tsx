@@ -9,6 +9,7 @@ import { AdminTable, type TableColumn } from "@/components/AdminTable";
 import type { AdminJoinRequest } from "@/db/admin-types";
 import { ICON_MAP } from "@/lib/icon-map";
 import { StatusBadge } from "@/components/StatusBadge";
+import { UserProfileSheet } from "@/components/UserProfileSheet";
 
 type JoinRequestsTableClientProps = {
   initialRequests: AdminJoinRequest[];
@@ -42,7 +43,18 @@ export function JoinRequestsTableClient({
   };
 
   const columns: TableColumn<AdminJoinRequest>[] = [
-    { key: "userEmail", label: "User Email", icon: ICON_MAP.nav.users },
+    {
+      key: "userEmail",
+      label: "User",
+      icon: ICON_MAP.nav.users,
+      render: (value, row) => (
+        <UserProfileSheet
+          userId={row.userId}
+          userName={row.userDisplayName}
+          trigger={<span>{String(value)}</span>}
+        />
+      ),
+    },
     { key: "clubName", label: "Club Name", icon: ICON_MAP.nav.clubs },
     { 
       key: "status", 

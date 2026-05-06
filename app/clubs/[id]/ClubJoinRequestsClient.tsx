@@ -12,6 +12,7 @@ import {
 } from "@/app/actions";
 import type { ClubJoinRequest } from "@/db/types";
 import { toast } from "sonner";
+import { UserProfileSheet } from "@/components/UserProfileSheet";
 
 type Props = {
   initialRequests: ClubJoinRequest[];
@@ -71,7 +72,9 @@ export function ClubJoinRequestsClient({ initialRequests }: Props) {
     <div key={req.id} className={`rounded-xl border p-4 bg-card flex items-start gap-4 ${req.status === "waitlisted" ? "border-amber-200 bg-amber-50/50 dark:bg-amber-950/10" : ""}`}>
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2 mb-1">
-          <span className="font-medium">{req.user_display_name}</span>
+          <UserProfileSheet userId={req.user_id} userName={req.user_display_name} trigger={
+            <span className="font-medium">{req.user_display_name}</span>
+          } />
           <span className="text-xs text-muted-foreground">{req.user_email}</span>
           {req.status === "waitlisted" && (
             <span className="text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-400 px-2 py-0.5 rounded-full">

@@ -19,6 +19,10 @@ import {
   approveClubCreationRequest,
   rejectClubCreationRequest,
 } from "@/db/club-requests";
+import { getUserById } from "@/db/auth";
+import { getMyClubs } from "@/db/queries";
+import type { AuthUser } from "@/db/auth-types";
+import type { MyClub } from "@/db/types";
 
 export async function serverUpdateUserAdminStatus(
   userId: number,
@@ -166,4 +170,13 @@ export async function serverRejectClubCreationRequest(
   const reviewerId = rawUserId ? Number(rawUserId) : NaN;
   if (!Number.isFinite(reviewerId)) throw new Error("Not authenticated.");
   await rejectClubCreationRequest(requestId, reviewerId, message);
+}
+
+export async function serverGetUserProfile(
+  userId: number,
+): Promise<{ user: AuthUser; clubs: MyClub[] } | null> {
+  const user = await getUserById(userId);
+  if (!user) return null;
+  const clubs = await getMyClubs(userId);
+  return { user, clubs };
 }

@@ -77,7 +77,9 @@ export async function getAllJoinRequests(): Promise<AdminJoinRequest[]> {
   const pool = getDbPool();
   const result = await pool.query<{
     request_id: number;
+    user_id: number;
     user_email: string;
+    user_display_name: string;
     club_name: string;
     status: string;
     created_at: string;
@@ -85,7 +87,9 @@ export async function getAllJoinRequests(): Promise<AdminJoinRequest[]> {
     `
     SELECT
       jr.request_id,
+      u.user_id,
       u.email AS user_email,
+      u.display_name AS user_display_name,
       c.name AS club_name,
       jr.status,
       jr.created_at
@@ -98,7 +102,9 @@ export async function getAllJoinRequests(): Promise<AdminJoinRequest[]> {
 
   return result.rows.map((row) => ({
     id: row.request_id,
+    userId: row.user_id,
     userEmail: row.user_email,
+    userDisplayName: row.user_display_name,
     clubName: row.club_name,
     status: row.status,
     createdAt: row.created_at,
