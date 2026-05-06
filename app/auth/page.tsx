@@ -224,7 +224,7 @@ export default function AuthPage() {
               type="button"
               size="sm"
               variant={mode === "signin" ? "secondary" : "ghost"}
-              onClick={() => setMode("signin")}
+              onClick={() => { setMode("signin"); setError(null); }}
             >
               <Icon icon={ICON_MAP.user.profile} className="mr-2" /> Sign In
             </Button>
@@ -232,7 +232,7 @@ export default function AuthPage() {
               type="button"
               size="sm"
               variant={mode === "register" ? "secondary" : "ghost"}
-              onClick={() => setMode("register")}
+              onClick={() => { setMode("register"); setError(null); }}
             >
               <Icon icon={ICON_MAP.nav.users} className="mr-2" /> Register
             </Button>

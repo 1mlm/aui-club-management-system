@@ -7,6 +7,8 @@ import {
   Edit01Icon,
   Home01Icon,
   LogoutIcon,
+  Mail01Icon,
+  MoreIcon,
   Notification01Icon,
   SearchIcon,
   Telescope01Icon,
@@ -51,6 +53,8 @@ export const ICON_MAP = {
   user: {
     profile: User03Icon,
     logout: LogoutIcon,
+    mail: Mail01Icon,
+    role: MoreIcon,
   },
   misc: {
     search: SearchIcon,

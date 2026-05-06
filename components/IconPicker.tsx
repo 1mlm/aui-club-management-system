@@ -1,9 +1,14 @@
 "use client";
 
-import React from "react";
 import { ALLOWED_ICON_MAP, type ClubIconKey } from "@/db/catalog";
-import { cn } from "@/shadcn/lib/utils";
 import { Icon } from "@/shadcn/cpns/Icon";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shadcn/ui/select";
 
 type IconPickerProps = {
   value: ClubIconKey;
@@ -11,30 +16,35 @@ type IconPickerProps = {
   className?: string;
 };
 
+function formatIconLabel(key: string) {
+  return key
+    .toLowerCase()
+    .split("_")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
 export function IconPicker({ value, onChange, className }: IconPickerProps) {
   return (
-    <div className={cn("grid grid-cols-6 gap-2 max-h-[300px] overflow-y-auto p-1", className)}>
-      {(Object.keys(ALLOWED_ICON_MAP) as ClubIconKey[]).map((iconKey) => {
-        const isSelected = value === iconKey;
-        const icon = ALLOWED_ICON_MAP[iconKey];
-        
-        return (
-          <button
-            key={iconKey}
-            type="button"
-            onClick={() => onChange(iconKey)}
-            className={cn(
-              "flex size-10 items-center justify-center rounded-md border transition-all hover:bg-slate-50 hover:scale-105 active:scale-95",
-              isSelected 
-                ? "bg-primary/10 border-primary text-primary" 
-                : "bg-white border-slate-200 text-slate-600"
-            )}
-            title={iconKey}
-          >
-            <Icon icon={icon} className="size-5" />
-          </button>
-        );
-      })}
-    </div>
+    <Select value={value} onValueChange={(v) => onChange(v as ClubIconKey)}>
+      <SelectTrigger className={className}>
+        <SelectValue>
+          <span className="flex items-center gap-2">
+            <Icon icon={ALLOWED_ICON_MAP[value]} className="size-4 shrink-0" />
+            <span>{formatIconLabel(value)}</span>
+          </span>
+        </SelectValue>
+      </SelectTrigger>
+      <SelectContent className="max-h-64">
+        {(Object.keys(ALLOWED_ICON_MAP) as ClubIconKey[]).map((iconKey) => (
+          <SelectItem key={iconKey} value={iconKey}>
+            <span className="flex items-center gap-2">
+              <Icon icon={ALLOWED_ICON_MAP[iconKey]} className="size-4 shrink-0" />
+              <span>{formatIconLabel(iconKey)}</span>
+            </span>
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
