@@ -40,6 +40,9 @@ export type PostRecord = {
   created_at: Date | string;
   updated_at: Date | string | null;
   is_deleted: boolean;
+  is_pinned: boolean;
+  like_count: number;
+  user_liked: boolean;
   author_display_name?: string;
 };
 
@@ -52,7 +55,19 @@ export type PostQueryRow = {
   created_at: Date | string;
   updated_at: Date | string | null;
   is_deleted: boolean;
+  is_pinned: boolean;
+  like_count: number;
+  user_liked: boolean;
   author_display_name: string;
+};
+
+export type ActivityLogEntry = {
+  log_id: number;
+  actor_name: string | null;
+  club_name: string | null;
+  action: string;
+  detail: string | null;
+  created_at: Date | string;
 };
 
 export type MyClub = {
@@ -82,7 +97,7 @@ export type ClubJoinRequest = {
   user_display_name: string;
   message: string | null;
   created_at: Date | string;
-  status: "pending" | "approved" | "rejected";
+  status: "pending" | "approved" | "rejected" | "waitlisted";
 };
 
 export type MyJoinRequest = {

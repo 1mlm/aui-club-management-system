@@ -317,9 +317,21 @@ VALUES
   (16, 14, 24, 'join', 'rejected', 'At capacity this term. Priority given to upper-year students.',               NOW() - INTERVAL '90 days',  NOW() - INTERVAL '89 days'),
   (23, 19, 29, 'join', 'rejected', 'Biology background preferred. Consider applying in spring.',                   NOW() - INTERVAL '70 days',  NOW() - INTERVAL '69 days');
 
+-- Club creation requests
+INSERT INTO club_creation_request (request_id, initiator_user_id, name, description, main_color, icon_name, email, status, reviewer_message, created_at, reviewed_at)
+VALUES
+  (1, 8,  'Art & Design Club',   'Workshops on painting, illustration, digital art, and mixed media.',         'PINK',   'PAINT_BOARD',   'artdesign@aui.ma',   'pending',  NULL,                                                        NOW() - INTERVAL '30 days', NULL),
+  (2, 10, 'Tennis Club',         'Weekly tennis drills, friendly matches, and court booking coordination.',    'CYAN',   'FOOTBALL',      'tennis@aui.ma',      'pending',  NULL,                                                        NOW() - INTERVAL '25 days', NULL),
+  (3, 17, 'Adventure Club',      'Hiking, camping, orienteering, and outdoor survival skills.',                'YELLOW', 'ADVENTURE',     'adventure@aui.ma',   'pending',  NULL,                                                        NOW() - INTERVAL '20 days', NULL),
+  (4, 14, 'Language Exchange',   'Pair up with native speakers to practice Arabic, French, English.',          'BLUE',   'KNOWLEDGE',     'langex@aui.ma',      'rejected', 'Similar initiative already runs through the language dept.', NOW() - INTERVAL '40 days', NOW() - INTERVAL '38 days'),
+  (5, 19, '3D Printing Club',    'Design and print physical objects using campus Prusa printers.',             'PURPLE', 'CODE_TERMINAL', 'printing@aui.ma',    'pending',  NULL,                                                        NOW() - INTERVAL '15 days', NULL),
+  (6, 22, 'Astronomy Club',      'Stargazing nights, telescope sessions, and space science discussions.',     'PURPLE', 'AI_SPARKLES',   'astronomy@aui.ma',   'pending',  NULL,                                                        NOW() - INTERVAL '10 days', NULL),
+  (7, 25, 'Meditation Club',     'Guided meditation, breathwork, and mindfulness workshops.',                  'GREEN',  'LAUREL_WREATH', 'meditation@aui.ma',  'approved', NULL,                                                        NOW() - INTERVAL '50 days', NOW() - INTERVAL '48 days');
+
 -- Advance sequences
 SELECT setval(pg_get_serial_sequence('users', 'user_id'), coalesce(max(user_id), 0) + 1, false) FROM users;
 SELECT setval(pg_get_serial_sequence('club', 'club_id'), coalesce(max(club_id), 0) + 1, false) FROM club;
 SELECT setval(pg_get_serial_sequence('membership', 'membership_id'), coalesce(max(membership_id), 0) + 1, false) FROM membership;
 SELECT setval(pg_get_serial_sequence('post', 'post_id'), coalesce(max(post_id), 0) + 1, false) FROM post;
 SELECT setval(pg_get_serial_sequence('joinrequest', 'request_id'), coalesce(max(request_id), 0) + 1, false) FROM joinrequest;
+SELECT setval(pg_get_serial_sequence('club_creation_request', 'request_id'), coalesce(max(request_id), 0) + 1, false) FROM club_creation_request;

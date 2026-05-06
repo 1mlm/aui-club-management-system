@@ -1,5 +1,6 @@
 "use server";
 
+import { cookies } from "next/headers";
 import {
   approveJoinRequest as approveJoinRequestDb,
   deleteUser as deleteUserDb,
@@ -11,7 +12,13 @@ import {
   adminCreateClub,
   adminDeleteClub,
 } from "@/db/admin";
-import { updateClubMemberStatus, updateClubMemberRole, updateClubInfo, createPost, requestJoinClub, leaveClub, approveClubJoinRequest, rejectClubJoinRequest } from "@/db/club-management";
+import { updateClubMemberStatus, updateClubMemberRole, updateClubInfo, createPost, requestJoinClub, leaveClub, approveClubJoinRequest, rejectClubJoinRequest, waitlistJoinRequest, promoteFromWaitlist, deletePost, editPost, togglePinPost, togglePostLike } from "@/db/club-management";
+import { AUTH_COOKIE_NAME } from "@/db/auth-cookie";
+import {
+  submitClubCreationRequest,
+  approveClubCreationRequest,
+  rejectClubCreationRequest,
+} from "@/db/club-requests";
 
 export async function serverUpdateUserAdminStatus(
   userId: number,
@@ -98,4 +105,65 @@ export async function serverAdminCreateClub(
 
 export async function serverAdminDeleteClub(clubId: number) {
   await adminDeleteClub(clubId);
+}
+
+export async function serverSubmitClubCreationRequest(data: {
+  name: string;
+  description?: string;
+  color?: string;
+  icon?: string;
+  email: string;
+}): Promise<void> {
+  const cookieStore = await cookies();
+  const rawUserId = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+  const userId = rawUserId ? Number(rawUserId) : NaN;
+  if (!Number.isFinite(userId)) throw new Error("You must be logged in to submit a club creation request.");
+  await submitClubCreationRequest({ userId, ...data });
+}
+
+export async function serverApproveClubCreationRequest(requestId: number): Promise<void> {
+  const cookieStore = await cookies();
+  const rawUserId = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+  const reviewerId = rawUserId ? Number(rawUserId) : NaN;
+  if (!Number.isFinite(reviewerId)) throw new Error("Not authenticated.");
+  await approveClubCreationRequest(requestId, reviewerId);
+}
+
+export async function serverWaitlistJoinRequest(requestId: number) {
+  await waitlistJoinRequest(requestId);
+}
+
+export async function serverPromoteFromWaitlist(requestId: number) {
+  await promoteFromWaitlist(requestId);
+}
+
+export async function serverDeletePost(postId: number) {
+  await deletePost(postId);
+}
+
+export async function serverEditPost(postId: number, title: string, content: string) {
+  await editPost(postId, title, content);
+}
+
+export async function serverTogglePinPost(postId: number, pin: boolean) {
+  await togglePinPost(postId, pin);
+}
+
+export async function serverTogglePostLike(postId: number): Promise<{ liked: boolean; count: number }> {
+  const cookieStore = await cookies();
+  const rawUserId = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+  const userId = rawUserId ? Number(rawUserId) : NaN;
+  if (!Number.isFinite(userId)) throw new Error("You must be logged in to like a post.");
+  return await togglePostLike(postId, userId);
+}
+
+export async function serverRejectClubCreationRequest(
+  requestId: number,
+  message?: string
+): Promise<void> {
+  const cookieStore = await cookies();
+  const rawUserId = cookieStore.get(AUTH_COOKIE_NAME)?.value;
+  const reviewerId = rawUserId ? Number(rawUserId) : NaN;
+  if (!Number.isFinite(reviewerId)) throw new Error("Not authenticated.");
+  await rejectClubCreationRequest(requestId, reviewerId, message);
 }

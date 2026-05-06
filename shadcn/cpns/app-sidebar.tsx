@@ -38,6 +38,8 @@ const ADMIN_NAV = [
   { title: "Users", url: "/admin/users", icon: ICON_MAP.nav.users },
   { title: "Clubs", url: "/admin/clubs", icon: ICON_MAP.nav.clubs },
   { title: "Join Requests", url: "/admin/joinrequests", icon: ICON_MAP.nav.joinRequests },
+  { title: "Club Requests", url: "/admin/clubrequests", icon: ICON_MAP.nav.dashboard },
+  { title: "Analytics", url: "/admin/analytics", icon: ICON_MAP.nav.queries },
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
@@ -93,6 +95,24 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
             ))}
           </SidebarMenu>
         </SidebarGroup>
+
+        {user && (
+          <>
+            <SidebarSeparator />
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <SidebarMenuButton asChild isActive={isActive("/create-club")}>
+                    <Link href="/create-club">
+                      <Icon icon={ICON_MAP.nav.clubs} />
+                      <span>Create a Club</span>
+                    </Link>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </>
+        )}
 
         {user && myClubs.length > 0 && (
           <>
