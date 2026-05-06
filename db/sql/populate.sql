@@ -316,3 +316,10 @@ VALUES
   (15, 2,  3,  'join', 'rejected', 'We need hands-on experience. Try our intro workshop first.',                  NOW() - INTERVAL '118 days', NOW() - INTERVAL '117 days'),
   (16, 14, 24, 'join', 'rejected', 'At capacity this term. Priority given to upper-year students.',               NOW() - INTERVAL '90 days',  NOW() - INTERVAL '89 days'),
   (23, 19, 29, 'join', 'rejected', 'Biology background preferred. Consider applying in spring.',                   NOW() - INTERVAL '70 days',  NOW() - INTERVAL '69 days');
+
+-- Advance sequences
+SELECT setval(pg_get_serial_sequence('users', 'user_id'), coalesce(max(user_id), 0) + 1, false) FROM users;
+SELECT setval(pg_get_serial_sequence('club', 'club_id'), coalesce(max(club_id), 0) + 1, false) FROM club;
+SELECT setval(pg_get_serial_sequence('membership', 'membership_id'), coalesce(max(membership_id), 0) + 1, false) FROM membership;
+SELECT setval(pg_get_serial_sequence('post', 'post_id'), coalesce(max(post_id), 0) + 1, false) FROM post;
+SELECT setval(pg_get_serial_sequence('joinrequest', 'request_id'), coalesce(max(request_id), 0) + 1, false) FROM joinrequest;

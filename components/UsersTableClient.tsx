@@ -5,10 +5,12 @@ import {
   serverDeleteUser,
   serverUpdateUserAdminStatus,
   serverUpdateUserDisplayName,
+  serverAdminCreateUser,
 } from "@/app/actions";
 import { AdminTable, type TableColumn } from "@/components/AdminTable";
 import type { AdminUser } from "@/db/admin-types";
 import { ICON_MAP } from "@/lib/icon-map";
+import { Icon } from "@/shadcn/cpns/Icon";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,6 +22,10 @@ import {
   AlertDialogTitle,
 } from "@/shadcn/ui/alert-dialog";
 import { Input } from "@/shadcn/ui/input";
+import { Button } from "@/shadcn/ui/button";
+import { Label } from "@/shadcn/ui/label";
+import { toast } from "sonner";
+import { StatusBadge } from "@/components/StatusBadge";
 
 type UsersTableClientProps = {
   initialUsers: AdminUser[];
@@ -28,10 +34,11 @@ type UsersTableClientProps = {
 export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
   const [users, setUsers] = useState<AdminUser[]>(initialUsers);
   const [dialog, setDialog] = useState<{
-    type: "confirm_admin" | "edit_name" | "delete" | null;
+    type: "confirm_admin" | "edit_name" | "delete" | "create" | null;
     user: AdminUser | null;
     newValue?: string;
   }>({ type: null, user: null });
+  const [createForm, setCreateForm] = useState({ email: "", displayName: "", passwordRaw: "" });
 
   const handleToggleAdmin = async (user: AdminUser) => {
     if (dialog.user?.id === user.id && dialog.type === "confirm_admin") {
@@ -88,23 +95,51 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
     }
   };
 
+  const handleCreateUser = async () => {
+    if (!createForm.email || !createForm.displayName || !createForm.passwordRaw) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    try {
+      const newUser = await serverAdminCreateUser(createForm.email, createForm.displayName, createForm.passwordRaw);
+      setUsers([newUser, ...users]);
+      setDialog({ type: null, user: null });
+      setCreateForm({ email: "", displayName: "", passwordRaw: "" });
+      toast.success("User created successfully");
+    } catch (error: any) {
+      toast.error(error.message || "Failed to create user");
+    }
+  };
+
   const columns: TableColumn<AdminUser>[] = [
     { key: "email", label: "Email", icon: ICON_MAP.nav.users },
-    { key: "displayName", label: "Display Name" },
+    { key: "displayName", label: "Display Name", icon: ICON_MAP.user.profile },
     {
       key: "isSystemAdmin",
-      label: "Admin",
-      render: (value) => (value ? "Yes" : "No"),
+      label: "Role",
+      icon: ICON_MAP.actions.admin,
+      render: (value) => (
+        <StatusBadge type="admin_status" value={value as boolean} />
+      ),
     },
     {
       key: "createdAt",
-      label: "Created",
+      label: "Joined",
+      icon: ICON_MAP.status.pending,
       render: (value) => new Date(value as string).toLocaleDateString(),
     },
   ];
 
   return (
-    <>
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button onClick={() => setDialog({ type: "create", user: null })}>
+          <span className="flex items-center gap-2">
+            <Icon icon={ICON_MAP.actions.create} />
+            Create User
+          </span>
+        </Button>
+      </div>
       <AdminTable
         data={users}
         columns={columns}
@@ -125,7 +160,7 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
         }}
       />
 
-      <AlertDialog open={!!dialog.user}>
+      <AlertDialog open={!!dialog.type}>
         <AlertDialogContent>
           {dialog.type === "confirm_admin" && dialog.user && (
             <>
@@ -209,8 +244,56 @@ export function UsersTableClient({ initialUsers }: UsersTableClientProps) {
               </AlertDialogFooter>
             </>
           )}
+
+          {dialog.type === "create" && (
+            <>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Create New User</AlertDialogTitle>
+                <AlertDialogDescription asChild>
+                  <div className="space-y-4 mt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="create-email">Email</Label>
+                      <Input
+                        id="create-email"
+                        value={createForm.email}
+                        onChange={(e) => setCreateForm({ ...createForm, email: e.target.value })}
+                        placeholder="user@aui.ma"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="create-displayName">Display Name</Label>
+                      <Input
+                        id="create-displayName"
+                        value={createForm.displayName}
+                        onChange={(e) => setCreateForm({ ...createForm, displayName: e.target.value })}
+                        placeholder="John Doe"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="create-password">Password</Label>
+                      <Input
+                        id="create-password"
+                        type="password"
+                        value={createForm.passwordRaw}
+                        onChange={(e) => setCreateForm({ ...createForm, passwordRaw: e.target.value })}
+                        placeholder="••••••••"
+                      />
+                    </div>
+                  </div>
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter className="mt-6">
+                <AlertDialogCancel onClick={() => setDialog({ type: null, user: null })}>
+                  Cancel
+                </AlertDialogCancel>
+                <AlertDialogAction onClick={handleCreateUser}>
+                  Create
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </>
+          )}
         </AlertDialogContent>
       </AlertDialog>
-    </>
+    </div>
   );
 }

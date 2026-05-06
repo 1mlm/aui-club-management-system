@@ -42,7 +42,8 @@ CREATE TABLE club (
         OR UPPER(main_color) IN (
             'BLUE', 'BLACK', 'RED', 'GREEN', 'AMBER',
             'ORANGE', 'YELLOW', 'CYAN', 'PINK', 'PURPLE',
-            'SLATE', 'TEAL', 'INDIGO', 'ROSE'
+            'SLATE', 'TEAL', 'INDIGO', 'ROSE', 'SKY', 'VIOLET',
+            'LIME', 'EMERALD', 'FUCHSIA'
         )
     ),
     CONSTRAINT chk_club_icon_name CHECK (
@@ -54,7 +55,9 @@ CREATE TABLE club (
             'GLOBE', 'KNOWLEDGE', 'LAUREL_WREATH', 'LEAF', 'MEGAPHONE',
             'MORTARBOARD', 'MUSIC_NOTE', 'PAINT_BOARD', 'STAR', 'SUPER_MARIO',
             'SWIMMING', 'TENNIS_RACKET', 'TEST_TUBE', 'THEATER_MASK', 'TREE',
-            'VOLLEYBALL'
+            'VOLLEYBALL', 'BRAIN', 'CPU', 'COFFEE', 'HEART', 'ROCKET',
+            'SHIELD', 'TROPHY', 'PIZZA', 'UMBRELLA', 'CLOUD', 'MOON',
+            'SUN', 'ANCHOR', 'TARGET'
         )
     )
 );

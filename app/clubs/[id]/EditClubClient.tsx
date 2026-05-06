@@ -21,12 +21,17 @@ import {
 import { serverUpdateClubInfo } from "@/app/actions";
 import { ClubRecord } from "@/db/types";
 import { toast } from "sonner";
+import { ColorPicker } from "@/components/ColorPicker";
+import { IconPicker } from "@/components/IconPicker";
+import { type ClubColor, type ClubIconKey } from "@/db/catalog";
 
 export function EditClubClient({ club, canManage }: { club: ClubRecord, canManage: boolean }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(club.name);
   const [description, setDescription] = useState(club.description || "");
+  const [color, setColor] = useState<ClubColor>(club.color || "BLUE");
+  const [icon, setIcon] = useState<ClubIconKey>(club.icon || "ADVENTURE");
   const [loading, setLoading] = useState(false);
 
   if (!canManage) return null;
@@ -34,7 +39,12 @@ export function EditClubClient({ club, canManage }: { club: ClubRecord, canManag
   const handleUpdate = async () => {
       try {
           setLoading(true);
-          await serverUpdateClubInfo(club.id, { name, description });
+          await serverUpdateClubInfo(club.id, { 
+            name, 
+            description,
+            main_color: color,
+            icon_name: icon
+          });
           setOpen(false);
           toast.success("Club details updated successfully!");
           router.refresh();
@@ -69,6 +79,17 @@ export function EditClubClient({ club, canManage }: { club: ClubRecord, canManag
                     <div className="space-y-2">
                         <Label>Description</Label>
                         <Textarea value={description} onChange={e => setDescription(e.target.value)} />
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-3">
+                            <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Club Color</Label>
+                            <ColorPicker value={color} onChange={setColor} />
+                        </div>
+                        <div className="space-y-3">
+                            <Label className="text-xs uppercase tracking-wider text-muted-foreground font-semibold">Club Icon</Label>
+                            <IconPicker value={icon} onChange={setIcon} />
+                        </div>
                     </div>
                 </div>
 

@@ -7,6 +7,9 @@ import {
   updateClubStatus as updateClubStatusDb,
   updateUserAdminStatus as updateUserAdminStatusDb,
   updateUserDisplayName as updateUserDisplayNameDb,
+  adminCreateUser,
+  adminCreateClub,
+  adminDeleteClub,
 } from "@/db/admin";
 import { updateClubMemberStatus, updateClubMemberRole, updateClubInfo, createPost, requestJoinClub, leaveClub, approveClubJoinRequest, rejectClubJoinRequest } from "@/db/club-management";
 
@@ -55,7 +58,7 @@ export async function serverUpdateClubMemberRole(clubId: number, userId: number,
   await updateClubMemberRole(clubId, userId, role);
 }
 
-export async function serverUpdateClubInfo(clubId: number, data: { name?: string, description?: string }) {
+export async function serverUpdateClubInfo(clubId: number, data: { name?: string, description?: string, main_color?: string, icon_name?: string }) {
   await updateClubInfo(clubId, data);
 }
 
@@ -77,4 +80,22 @@ export async function serverApproveClubJoinRequest(requestId: number) {
 
 export async function serverRejectClubJoinRequest(requestId: number) {
   await rejectClubJoinRequest(requestId);
+}
+
+export async function serverAdminCreateUser(email: string, displayName: string, passwordRaw: string) {
+  return await adminCreateUser(email, displayName, passwordRaw);
+}
+
+export async function serverAdminCreateClub(
+  name: string,
+  ownerEmail: string,
+  description: string,
+  mainColor: string,
+  iconName: string
+) {
+  return await adminCreateClub(name, ownerEmail, description, mainColor, iconName);
+}
+
+export async function serverAdminDeleteClub(clubId: number) {
+  await adminDeleteClub(clubId);
 }

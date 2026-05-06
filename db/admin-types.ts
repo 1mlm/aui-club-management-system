@@ -12,6 +12,8 @@ export type AdminClub = {
   ownerEmail: string;
   status: string;
   createdAt: string;
+  mainColor?: string;
+  iconName?: string;
 };
 
 export type AdminJoinRequest = {

@@ -6,6 +6,7 @@ import { serverUpdateClubMemberStatus, serverUpdateClubMemberRole } from "@/app/
 import { ICON_MAP } from "@/lib/icon-map";
 import type { ClubMember } from "@/db/types";
 import { toast } from "sonner";
+import { StatusBadge } from "@/components/StatusBadge";
 
 export function ClubMembersClient({ initialMembers, clubId, currentUserRole }: { initialMembers: ClubMember[], clubId: number, currentUserRole: string }) {
   const [members, setMembers] = useState(initialMembers);
@@ -33,9 +34,19 @@ export function ClubMembersClient({ initialMembers, clubId, currentUserRole }: {
 
   const columns: TableColumn<ClubMember>[] = [
       { key: "display_name", label: "Name", icon: ICON_MAP.nav.users },
-      { key: "email", label: "Email" },
-      { key: "membership_role", label: "Role", render: (val) => val === 'board_member' ? "Board Member" : "Member" },
-      { key: "joined_at", label: "Joined", render: (val) => new Date(val as string).toLocaleDateString() }
+      { key: "email", label: "Email", icon: ICON_MAP.user.profile },
+      { 
+        key: "membership_role", 
+        label: "Role", 
+        icon: ICON_MAP.actions.admin,
+        render: (val) => <StatusBadge type="membership_role" value={val as string} />
+      },
+      { 
+        key: "joined_at", 
+        label: "Joined", 
+        icon: ICON_MAP.status.pending,
+        render: (val) => new Date(val as string).toLocaleDateString() 
+      }
   ];
 
   return (

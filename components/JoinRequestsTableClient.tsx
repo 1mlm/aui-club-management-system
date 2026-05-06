@@ -7,6 +7,8 @@ import {
 } from "@/app/actions";
 import { AdminTable, type TableColumn } from "@/components/AdminTable";
 import type { AdminJoinRequest } from "@/db/admin-types";
+import { ICON_MAP } from "@/lib/icon-map";
+import { StatusBadge } from "@/components/StatusBadge";
 
 type JoinRequestsTableClientProps = {
   initialRequests: AdminJoinRequest[];
@@ -40,12 +42,18 @@ export function JoinRequestsTableClient({
   };
 
   const columns: TableColumn<AdminJoinRequest>[] = [
-    { key: "userEmail", label: "User Email" },
-    { key: "clubName", label: "Club Name" },
-    { key: "status", label: "Status" },
+    { key: "userEmail", label: "User Email", icon: ICON_MAP.nav.users },
+    { key: "clubName", label: "Club Name", icon: ICON_MAP.nav.clubs },
+    { 
+      key: "status", 
+      label: "Status", 
+      icon: ICON_MAP.actions.status,
+      render: (value) => <StatusBadge type="join_request_status" value={value as string} />
+    },
     {
       key: "createdAt",
       label: "Created",
+      icon: ICON_MAP.status.pending,
       render: (value) => new Date(value as string).toLocaleDateString(),
     },
   ];
