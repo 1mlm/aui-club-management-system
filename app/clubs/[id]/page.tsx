@@ -96,19 +96,19 @@ export default async function ClubDetailsPage({ params }: { params: Promise<{ id
                 colorStyles={colorStyles}
               />
             )}
-            <EditClubClient club={club} canManage={canManage} />
+            <EditClubClient club={club} canManage={canManage} colorStyles={colorStyles} />
           </div>
         </div>
       </div>
 
       {/* Pending Join Requests (board/owner only) */}
       {canManage && pendingRequests.length > 0 && (
-        <ClubJoinRequestsClient initialRequests={pendingRequests} />
+        <ClubJoinRequestsClient initialRequests={pendingRequests} colorStyles={colorStyles} />
       )}
 
       {/* Members */}
       <div className="pt-2">
-        <ClubMembersClient initialMembers={members} clubId={club.id} currentUserRole={role} />
+        <ClubMembersClient initialMembers={members} clubId={club.id} currentUserRole={role} colorStyles={colorStyles} />
       </div>
 
       {/* Announcements */}

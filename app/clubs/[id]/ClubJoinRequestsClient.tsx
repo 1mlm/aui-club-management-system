@@ -11,13 +11,15 @@ import {
   serverPromoteFromWaitlist,
 } from "@/app/actions";
 import type { ClubJoinRequest } from "@/db/types";
+import type { ClubColorStyles } from "@/util/clubStyles";
 import { toast } from "sonner";
 
 type Props = {
   initialRequests: ClubJoinRequest[];
+  colorStyles: ClubColorStyles;
 };
 
-export function ClubJoinRequestsClient({ initialRequests }: Props) {
+export function ClubJoinRequestsClient({ initialRequests, colorStyles }: Props) {
   const [requests, setRequests] = useState(initialRequests);
 
   if (requests.length === 0) return null;
@@ -93,7 +95,7 @@ export function ClubJoinRequestsClient({ initialRequests }: Props) {
               <Icon icon={ICON_MAP.actions.approve} className="size-3.5" /> Approve
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleWaitlist(req)} className="gap-1.5 text-amber-600 border-amber-200 hover:bg-amber-50 hover:text-amber-700">
-              Waitlist
+              <Icon icon={ICON_MAP.status.pending} className="size-3.5" /> Waitlist
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleReject(req)} className="gap-1.5 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive">
               <Icon icon={ICON_MAP.actions.reject} className="size-3.5" /> Reject
@@ -103,7 +105,7 @@ export function ClubJoinRequestsClient({ initialRequests }: Props) {
         {req.status === "waitlisted" && (
           <>
             <Button size="sm" variant="outline" onClick={() => handlePromote(req)} className="gap-1.5 text-green-600 border-green-200 hover:bg-green-50 hover:text-green-700">
-              Promote
+              <Icon icon={ICON_MAP.actions.approve} className="size-3.5" /> Promote
             </Button>
             <Button size="sm" variant="outline" onClick={() => handleReject(req)} className="gap-1.5 text-destructive border-destructive/20 hover:bg-destructive/10 hover:text-destructive">
               <Icon icon={ICON_MAP.actions.reject} className="size-3.5" /> Reject
@@ -119,7 +121,10 @@ export function ClubJoinRequestsClient({ initialRequests }: Props) {
       <h2 className="text-xl font-semibold mb-4 text-foreground/80 flex items-center gap-2">
         <Icon icon={ICON_MAP.status.pending} className="size-5" />
         Join Requests
-        <span className="ml-1 text-sm font-normal bg-primary text-primary-foreground rounded-full px-2 py-0.5">
+        <span
+          className="ml-1 text-sm font-normal rounded-full px-2 py-0.5 border"
+          style={{ backgroundColor: colorStyles.bg, color: colorStyles.text, borderColor: colorStyles.border }}
+        >
           {requests.length}
         </span>
       </h2>

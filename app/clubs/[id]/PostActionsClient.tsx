@@ -9,6 +9,8 @@ import { Textarea } from "@/shadcn/ui/textarea";
 import { serverDeletePost, serverEditPost, serverTogglePinPost } from "@/app/actions";
 import { toast } from "sonner";
 import type { PostRecord } from "@/db/types";
+import { Icon } from "@/shadcn/cpns/Icon";
+import { ICON_MAP } from "@/lib/icon-map";
 
 type Props = {
   post: PostRecord;
@@ -132,23 +134,23 @@ export function PostActionsClient({ post }: Props) {
           onBlur={() => setOpen(false)}
         >
           <button
-            className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+            className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors flex items-center gap-2"
             onClick={() => { setMode("edit"); setOpen(false); }}
           >
-            Edit
+            <Icon icon={ICON_MAP.actions.edit} className="size-3.5 shrink-0" /> Edit
           </button>
           <button
-            className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors"
+            className="w-full text-left px-3 py-1.5 text-sm hover:bg-accent transition-colors flex items-center gap-2"
             onClick={handlePin}
             disabled={loading}
           >
-            {post.is_pinned ? "Unpin" : "Pin to top"}
+            <Icon icon={ICON_MAP.status.pending} className="size-3.5 shrink-0" /> {post.is_pinned ? "Unpin" : "Pin to top"}
           </button>
           <button
-            className="w-full text-left px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors"
+            className="w-full text-left px-3 py-1.5 text-sm text-destructive hover:bg-destructive/10 transition-colors flex items-center gap-2"
             onClick={() => { setMode("confirm-delete"); setOpen(false); }}
           >
-            Delete
+            <Icon icon={ICON_MAP.actions.delete} className="size-3.5 shrink-0" /> Delete
           </button>
         </div>
       )}

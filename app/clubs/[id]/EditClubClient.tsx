@@ -24,8 +24,9 @@ import { toast } from "sonner";
 import { ColorPicker } from "@/components/ColorPicker";
 import { IconPicker } from "@/components/IconPicker";
 import { type ClubColor, type ClubIconKey } from "@/db/catalog";
+import type { ClubColorStyles } from "@/util/clubStyles";
 
-export function EditClubClient({ club, canManage }: { club: ClubRecord, canManage: boolean }) {
+export function EditClubClient({ club, canManage, colorStyles }: { club: ClubRecord, canManage: boolean, colorStyles: ClubColorStyles }) {
   const router = useRouter();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(club.name);
@@ -58,7 +59,13 @@ export function EditClubClient({ club, canManage }: { club: ClubRecord, canManag
 
   return (
       <>
-         <Button variant="outline" size="sm" onClick={() => setOpen(true)} className="gap-2">
+         <Button
+           variant="outline"
+           size="sm"
+           onClick={() => setOpen(true)}
+           className="gap-2"
+           style={{ borderColor: colorStyles.border, color: colorStyles.text, backgroundColor: colorStyles.bg }}
+         >
              <Icon icon={ICON_MAP.actions.edit} className="size-4" /> Edit Club
          </Button>
 

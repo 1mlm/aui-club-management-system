@@ -39,7 +39,7 @@ export async function getAnalytics(): Promise<AnalyticsData> {
       WHERE c.status = 'active'
       GROUP BY c.club_id, c.name, c.main_color, c.icon_name
       ORDER BY member_count DESC
-      LIMIT 5
+      LIMIT 10
     `),
     pool.query(`
       SELECT c.club_id, c.name, c.main_color AS color, c.icon_name AS icon,
@@ -49,7 +49,7 @@ export async function getAnalytics(): Promise<AnalyticsData> {
       WHERE c.status = 'active'
       GROUP BY c.club_id, c.name, c.main_color, c.icon_name
       ORDER BY post_count DESC
-      LIMIT 5
+      LIMIT 10
     `),
     pool.query(`
       SELECT
@@ -73,7 +73,7 @@ export async function getAnalytics(): Promise<AnalyticsData> {
       LEFT JOIN users u ON u.user_id = al.actor_id
       LEFT JOIN club c ON c.club_id = al.club_id
       ORDER BY al.created_at DESC
-      LIMIT 20
+      LIMIT 50
     `),
   ]);
 
