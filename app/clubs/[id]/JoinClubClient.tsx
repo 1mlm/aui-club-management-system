@@ -18,15 +18,17 @@ import {
 } from "@/shadcn/ui/alert-dialog";
 import { serverRequestJoinClub, serverLeaveClub } from "@/app/actions";
 import { toast } from "sonner";
+import type { ClubColorStyles } from "@/util/clubStyles";
 
 type Props = {
   clubId: number;
   userId: number;
   currentRole: string;
   joinRequestStatus: string | null;
+  colorStyles?: ClubColorStyles;
 };
 
-export function JoinClubClient({ clubId, userId, currentRole, joinRequestStatus }: Props) {
+export function JoinClubClient({ clubId, userId, currentRole, joinRequestStatus, colorStyles }: Props) {
   const router = useRouter();
   const [joinOpen, setJoinOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
@@ -101,7 +103,12 @@ export function JoinClubClient({ clubId, userId, currentRole, joinRequestStatus 
 
   return (
     <>
-      <Button size="sm" onClick={() => setJoinOpen(true)} className="gap-2">
+      <Button 
+        size="sm" 
+        onClick={() => setJoinOpen(true)} 
+        className={colorStyles ? "gap-2 text-white border-none" : "gap-2"}
+        style={colorStyles ? { backgroundColor: colorStyles.primary } : undefined}
+      >
         <Icon icon={ICON_MAP.actions.join} className="size-4" /> Join Club
       </Button>
 

@@ -16,6 +16,8 @@ export interface ClubColorStyles {
   text: string;
   border: string;
   shadow: string;
+  primary: string;
+  primaryHover: string;
 }
 
 export function getClubColorStyles(color?: ClubColor): ClubColorStyles {
@@ -25,6 +27,8 @@ export function getClubColorStyles(color?: ClubColor): ClubColorStyles {
       text: CLUB_DEFAULT_TEXT_COLOR,
       border: CLUB_DEFAULT_BORDER_COLOR,
       shadow: CLUB_DEFAULT_SHADOW_COLOR,
+      primary: CLUB_DEFAULT_TEXT_COLOR,
+      primaryHover: CLUB_DEFAULT_TEXT_COLOR,
     };
   }
 
@@ -38,6 +42,8 @@ export function getClubColorStyles(color?: ClubColor): ClubColorStyles {
     text: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.85)`,
     border: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
     shadow: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`,
+    primary: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`,
+    primaryHover: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.85)`,
   };
 }
 

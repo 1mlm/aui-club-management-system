@@ -3,15 +3,17 @@
 import { useState } from "react";
 import { serverTogglePostLike } from "@/app/actions";
 import { toast } from "sonner";
+import type { ClubColorStyles } from "@/util/clubStyles";
 
 type Props = {
   postId: number;
   initialCount: number;
   initialLiked: boolean;
   loggedIn: boolean;
+  colorStyles?: ClubColorStyles;
 };
 
-export function LikeButton({ postId, initialCount, initialLiked, loggedIn }: Props) {
+export function LikeButton({ postId, initialCount, initialLiked, loggedIn, colorStyles }: Props) {
   const [liked, setLiked] = useState(initialLiked);
   const [count, setCount] = useState(initialCount);
   const [loading, setLoading] = useState(false);
@@ -45,9 +47,13 @@ export function LikeButton({ postId, initialCount, initialLiked, loggedIn }: Pro
       disabled={loading}
       className={`flex items-center gap-1.5 text-sm px-2 py-1 rounded-lg transition-colors ${
         liked
-          ? "text-blue-600 bg-blue-50 dark:bg-blue-950/30 dark:text-blue-400"
+          ? ""
           : "text-muted-foreground hover:text-foreground hover:bg-muted"
       }`}
+      style={liked && colorStyles ? { 
+        color: colorStyles.text, 
+        backgroundColor: colorStyles.bg 
+      } : undefined}
     >
       <svg
         xmlns="http://www.w3.org/2000/svg"
