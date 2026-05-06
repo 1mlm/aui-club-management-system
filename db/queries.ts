@@ -80,11 +80,15 @@ const GET_CLUB_POSTS = `
     p.created_at,
     p.updated_at,
     p.is_deleted,
-    u.display_name AS author_display_name
+    p.is_pinned,
+    p.like_count,
+    u.display_name AS author_display_name,
+    CASE WHEN pl.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS user_liked
   FROM post p
   JOIN users u ON u.user_id = p.user_id
+  LEFT JOIN post_like pl ON pl.post_id = p.post_id AND pl.user_id = $2
   WHERE p.club_id = $1 AND p.is_deleted = FALSE
-  ORDER BY p.created_at DESC;
+  ORDER BY p.is_pinned DESC, p.created_at DESC;
 `;
 
 export async function listClubs(): Promise<ClubRecord[]> {
@@ -257,9 +261,9 @@ export async function getClubMembers(clubId: number): Promise<any[]> {
   }));
 }
 
-export async function getClubPosts(clubId: number): Promise<PostRecord[]> {
+export async function getClubPosts(clubId: number, viewerUserId?: number): Promise<PostRecord[]> {
   const pool = getDbPool();
-  const result = await pool.query<PostQueryRow>(GET_CLUB_POSTS, [clubId]);
+  const result = await pool.query<PostQueryRow>(GET_CLUB_POSTS, [clubId, viewerUserId ?? null]);
 
   return result.rows.map((row) => ({
     id: row.id,
@@ -270,6 +274,9 @@ export async function getClubPosts(clubId: number): Promise<PostRecord[]> {
     created_at: row.created_at,
     updated_at: row.updated_at,
     is_deleted: row.is_deleted,
+    is_pinned: row.is_pinned,
+    like_count: Number(row.like_count) || 0,
+    user_liked: row.user_liked === true,
     author_display_name: row.author_display_name,
   }));
 }
@@ -333,8 +340,8 @@ const GET_CLUB_JOIN_REQUESTS = `
     jr.status
   FROM joinrequest jr
   JOIN users u ON u.user_id = jr.initiator_user_id
-  WHERE jr.target_club_id = $1 AND jr.status = 'pending'
-  ORDER BY jr.created_at ASC;
+  WHERE jr.target_club_id = $1 AND jr.status IN ('pending', 'waitlisted')
+  ORDER BY jr.status ASC, jr.created_at ASC;
 `;
 
 const GET_USER_JOIN_REQUEST_FOR_CLUB = `

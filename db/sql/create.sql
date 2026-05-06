@@ -92,8 +92,18 @@ CREATE TABLE post (
     created_at TIMESTAMP NOT NULL DEFAULT NOW(),
     updated_at TIMESTAMP,
     is_deleted BOOLEAN NOT NULL DEFAULT FALSE,
+    is_pinned BOOLEAN NOT NULL DEFAULT FALSE,
+    like_count INT NOT NULL DEFAULT 0,
     CONSTRAINT fk_post_club FOREIGN KEY (club_id) REFERENCES club (club_id) ON UPDATE CASCADE,
     CONSTRAINT fk_post_user FOREIGN KEY (user_id) REFERENCES users (user_id) ON UPDATE CASCADE
+);
+
+CREATE TABLE post_like (
+    like_id    SERIAL PRIMARY KEY,
+    post_id    INT NOT NULL REFERENCES post(post_id) ON DELETE CASCADE,
+    user_id    INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE(post_id, user_id)
 );
 
 CREATE TABLE joinrequest (
@@ -110,8 +120,17 @@ CREATE TABLE joinrequest (
     CONSTRAINT fk_joinrequest_reviewer FOREIGN KEY (reviewer_user_id) REFERENCES users (user_id) ON UPDATE CASCADE,
     CONSTRAINT fk_joinrequest_club FOREIGN KEY (target_club_id) REFERENCES club (club_id) ON UPDATE CASCADE,
     CONSTRAINT chk_joinrequest_status CHECK (
-        status IN ('pending', 'approved', 'rejected')
+        status IN ('pending', 'approved', 'rejected', 'waitlisted')
     )
+);
+
+CREATE TABLE activity_log (
+    log_id     SERIAL PRIMARY KEY,
+    actor_id   INT REFERENCES users(user_id) ON DELETE SET NULL,
+    club_id    INT REFERENCES club(club_id) ON DELETE SET NULL,
+    action     VARCHAR(80) NOT NULL,
+    detail     TEXT,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 CREATE TABLE club_creation_request (
@@ -131,9 +150,17 @@ CREATE TABLE club_creation_request (
     CONSTRAINT fk_ccr_reviewer FOREIGN KEY (reviewer_user_id) REFERENCES users (user_id) ON UPDATE CASCADE,
     CONSTRAINT chk_ccr_status CHECK (status IN ('pending', 'approved', 'rejected')),
     CONSTRAINT chk_ccr_color CHECK (
-        main_color IS NULL OR UPPER(main_color) IN ('BLUE','BLACK','RED','GREEN','AMBER','ORANGE','YELLOW','CYAN','PINK','PURPLE')
+        main_color IS NULL OR UPPER(main_color) IN ('BLUE','BLACK','RED','GREEN','AMBER','ORANGE','YELLOW','CYAN','PINK','PURPLE','SLATE','TEAL','INDIGO','ROSE','SKY','VIOLET','LIME','EMERALD','FUCHSIA')
     ),
     CONSTRAINT chk_ccr_icon CHECK (
-        icon_name IS NULL OR icon_name IN ('ADVENTURE','AI_SPARKLES','CAMERA','CHESS_KING','CODE_TERMINAL','COOKBOOK','FOOTBALL','KNOWLEDGE','LAUREL_WREATH','MUSIC_NOTE','PAINT_BOARD','SUPER_MARIO','TENNIS_RACKET','THEATER_MASK')
+        icon_name IS NULL OR icon_name IN (
+            'ADVENTURE','AI_SPARKLES','BICYCLE','BOOK_OPEN','BRIEFCASE','CAMERA','CAMERA_HD',
+            'CHESS','CHESS_KING','CODE_TERMINAL','COOKBOOK','DUMBBELL','FILM','FOOTBALL',
+            'GAME_CONTROLLER','GLOBE','KNOWLEDGE','LAUREL_WREATH','LEAF','MEGAPHONE',
+            'MORTARBOARD','MUSIC_NOTE','PAINT_BOARD','STAR','SUPER_MARIO','SWIMMING',
+            'TENNIS_RACKET','TEST_TUBE','THEATER_MASK','TREE','VOLLEYBALL','BRAIN','CPU',
+            'COFFEE','HEART','ROCKET','SHIELD','TROPHY','PIZZA','UMBRELLA','CLOUD',
+            'MOON','SUN','ANCHOR','TARGET'
+        )
     )
 );

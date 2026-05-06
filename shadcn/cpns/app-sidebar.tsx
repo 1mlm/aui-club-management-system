@@ -39,6 +39,7 @@ const ADMIN_NAV = [
   { title: "Clubs", url: "/admin/clubs", icon: ICON_MAP.nav.clubs },
   { title: "Join Requests", url: "/admin/joinrequests", icon: ICON_MAP.nav.joinRequests },
   { title: "Club Requests", url: "/admin/clubrequests", icon: ICON_MAP.nav.dashboard },
+  { title: "Analytics", url: "/admin/analytics", icon: ICON_MAP.nav.queries },
 ];
 
 export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
