@@ -33,6 +33,12 @@ export function ClubMembersClient({ initialMembers, clubId, currentUserRole }: {
   };
 
   const columns: TableColumn<ClubMember>[] = [
+      {
+        key: "user_id",
+        label: "ID",
+        icon: ICON_MAP.nav.browse,
+        render: (val) => <span className="font-mono text-xs text-muted-foreground">#{String(val)}</span>,
+      },
       { key: "display_name", label: "Name", icon: ICON_MAP.nav.users },
       { key: "email", label: "Email", icon: ICON_MAP.user.mail },
       {
