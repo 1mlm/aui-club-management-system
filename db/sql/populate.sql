@@ -284,6 +284,7 @@ INSERT INTO joinrequest (initiator_user_id, target_club_id, reviewer_user_id, re
 VALUES
   -- Pending
   (2,  5,  NULL, 'join', 'pending', 'Want to stay active and improve my fitness outside of class.',               NOW() - INTERVAL '3 days',   NULL),
+  (2,  3,  NULL, 'join', 'pending', 'I have been working on side projects in Next.js and PostgreSQL and would love to contribute.',  NOW() - INTERVAL '1 day',    NULL),
   (5,  1,  NULL, 'join', 'pending', 'Critical thinking and argumentation are skills I really want to develop.',   NOW() - INTERVAL '1 day',    NULL),
   (7,  10, NULL, 'join', 'pending', 'Cinema enthusiast — I watch 3 films a week and want to discuss them.',      NOW() - INTERVAL '4 days',   NULL),
   (10, 2,  NULL, 'join', 'pending', 'Fascinated by robotics and IoT. Have some Arduino experience.',              NOW() - INTERVAL '7 days',   NULL),
