@@ -5,6 +5,7 @@ import { AdminTable, type TableColumn } from "@/components/AdminTable";
 import type { ClubCreationRequest } from "@/db/club-requests";
 import { serverApproveClubCreationRequest, serverRejectClubCreationRequest } from "@/app/actions";
 import { ICON_MAP } from "@/lib/icon-map";
+import { StatusBadge } from "@/components/StatusBadge";
 import { toast } from "sonner";
 
 export function ClubCreationRequestsTableClient({
@@ -13,7 +14,7 @@ export function ClubCreationRequestsTableClient({
   initialRequests: ClubCreationRequest[];
 }) {
   const [requests, setRequests] = useState(initialRequests);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   const handleAction = (request: ClubCreationRequest, action: string) => {
     startTransition(async () => {
@@ -38,30 +39,21 @@ export function ClubCreationRequestsTableClient({
   };
 
   const columns: TableColumn<ClubCreationRequest>[] = [
-    { key: "initiatorEmail", label: "Requested By" },
-    { key: "name", label: "Club Name" },
-    { key: "email", label: "Club Email" },
-    {
-      key: "color",
-      label: "Color",
-      render: (val) => val ? String(val) : "—",
-    },
+    { key: "initiatorEmail", label: "Requested By", icon: ICON_MAP.nav.users },
+    { key: "name", label: "Club Name", icon: ICON_MAP.nav.clubs },
+    { key: "email", label: "Club Email", icon: ICON_MAP.user.mail },
     {
       key: "status",
       label: "Status",
-      render: (val) => {
-        const status = String(val);
-        const colors: Record<string, string> = {
-          pending: "text-amber-500",
-          approved: "text-emerald-600",
-          rejected: "text-destructive",
-        };
-        return <span className={`font-medium capitalize ${colors[status] ?? ""}`}>{status}</span>;
-      },
+      icon: ICON_MAP.actions.status,
+      render: (val) => (
+        <StatusBadge type="creation_request_status" value={String(val)} />
+      ),
     },
     {
       key: "createdAt",
       label: "Submitted",
+      icon: ICON_MAP.status.pending,
       render: (val) => new Date(val as string).toLocaleDateString(),
     },
   ];

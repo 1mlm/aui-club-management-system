@@ -7,6 +7,7 @@ export type ClubRecord = {
   description: string | null;
   color: ClubColor | null;
   icon: ClubIconKey | null;
+  memberCount: number;
   member_count: number;
 };
 
@@ -25,9 +26,8 @@ export type ClubMember = {
   membership_id: number;
   user_id: number;
   email: string;
-  display_name: string;
+  display_name: string | null;
   membership_role: "board_member" | "member";
-  membership_status: "pending" | "active" | "rejected" | "left" | "banned";
   joined_at: Date | string;
 };
 

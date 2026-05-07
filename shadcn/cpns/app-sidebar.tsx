@@ -27,6 +27,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/shadcn/ui/dropdown-menu";
+import { ModeToggle } from "@/components/ModeToggle";
 
 const BASE_NAV = [
   { title: "Browse Clubs", url: "/", icon: ICON_MAP.nav.browse },
@@ -62,17 +63,17 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
 
   return (
     <Sidebar variant="inset" {...props}>
-      <SidebarHeader>
+      <SidebarHeader className="pt-4 pb-2 px-4">
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <Link href="/">
-                <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
-                  <Icon icon={ICON_MAP.misc.logo} className="size-4" />
+            <SidebarMenuButton size="lg" asChild className="hover:bg-transparent focus-visible:ring-0">
+              <Link href="/" className="flex items-center gap-3">
+                <div className="flex aspect-square size-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                  <Icon icon={ICON_MAP.misc.logo} className="size-5" />
                 </div>
-                <div className="flex flex-col gap-0.5 leading-none">
-                  <span className="font-semibold text-sm">AUI Clubs</span>
-                  <span className="text-xs text-muted-foreground">Database Studio</span>
+                <div className="flex flex-col gap-0.5 leading-none py-1">
+                  <span className="font-bold text-sm tracking-tight">AUI Clubs</span>
+                  <span className="text-[10px] uppercase tracking-widest font-semibold text-muted-foreground/70">Database Studio</span>
                 </div>
               </Link>
             </SidebarMenuButton>
@@ -170,6 +171,9 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
       <SidebarFooter>
         <SidebarMenu>
           <SidebarMenuItem>
+            <ModeToggle />
+          </SidebarMenuItem>
+          <SidebarMenuItem>
             {!loading && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -197,7 +201,7 @@ export function AppSidebar(props: React.ComponentProps<typeof Sidebar>) {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : !loading && !user ? (
-              <SidebarMenuButton asChild size="lg">
+              <SidebarMenuButton asChild size="lg" isActive={isActive("/auth")}>
                 <Link href="/auth">
                   <Icon icon={ICON_MAP.user.profile} className="size-4" />
                   <div className="flex flex-col gap-0.5 leading-none ml-1">

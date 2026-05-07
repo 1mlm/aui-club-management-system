@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useQueryState } from "nuqs";
 import { useMemo } from "react";
-import { ALLOWED_COLOR_VALUES, ALLOWED_ICON_MAP } from "@/db/catalog";
+import { ALLOWED_COLOR_VALUES, ALLOWED_ICON_MAP, CLUB_COLOR_HEX } from "@/db/catalog";
 import type { ClubRecord } from "@/db/types";
 import { ICON_MAP } from "@/lib/icon-map";
 import { Icon } from "@/shadcn/cpns/Icon";
@@ -100,9 +100,11 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
             className="h-10"
           />
           {visibleClubs.length > 0 && normalizedQuery && (
-            <InputGroupText className="text-muted-foreground pr-3 text-sm">
-              {visibleClubs.length}
-            </InputGroupText>
+            <InputGroupAddon align="inline-end" className="pr-3">
+              <span className="text-xs font-medium text-muted-foreground/60 tabular-nums bg-muted px-1.5 py-0.5 rounded">
+                {visibleClubs.length} {visibleClubs.length === 1 ? "result" : "results"}
+              </span>
+            </InputGroupAddon>
           )}
         </InputGroup>
 
@@ -134,16 +136,18 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
 
       {/* Color filter chips */}
       {usedColors.length > 0 && (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="text-xs text-muted-foreground font-medium shrink-0">Filter:</span>
           {usedColors.map((color) => {
             const styles = getClubColorStyles(color);
+            const hex = CLUB_COLOR_HEX[color];
             const isActive = colorFilter === color;
             return (
               <button
                 key={color}
                 type="button"
                 onClick={() => setColorFilter(isActive ? "" : color)}
-                className="h-7 px-3 rounded-full text-xs font-medium border transition-all"
+                className="h-7 px-2.5 rounded-full text-xs font-medium border transition-all flex items-center gap-1.5"
                 style={{
                   backgroundColor: isActive ? styles.text : styles.bg,
                   borderColor: styles.border,
@@ -151,20 +155,24 @@ export function ClubBrowser({ clubs }: ClubBrowserProps) {
                   boxShadow: isActive ? `0 0 10px ${styles.shadow}` : undefined,
                 }}
               >
+                <span
+                  className="size-2.5 rounded-full shrink-0 border"
+                  style={{
+                    backgroundColor: hex,
+                    borderColor: isActive ? "rgba(255,255,255,0.5)" : styles.border,
+                  }}
+                />
                 {color.charAt(0) + color.slice(1).toLowerCase()}
               </button>
             );
           })}
+          {isFilterActive && colorFilter && (
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {visibleClubs.length} of {clubs.length}
+            </span>
+          )}
         </div>
       )}
-
-      {/* Club count */}
-      <div className="flex items-center justify-between">
-        <p className="text-sm text-muted-foreground">
-          {visibleClubs.length} {visibleClubs.length === 1 ? "club" : "clubs"}
-          {isFilterActive && ` (filtered from ${clubs.length})`}
-        </p>
-      </div>
 
       {/* Grid */}
       {visibleClubs.length > 0 ? (
@@ -234,7 +242,7 @@ function ClubCard({ club }: { club: ClubRecord }) {
         </div>
 
         <span
-          className="text-xs font-medium px-2 py-1 rounded-full border"
+          className="text-[10px] font-bold uppercase tracking-wider px-2 py-1 rounded-lg border shadow-sm"
           style={{ borderColor: colorStyles.border, color: colorStyles.text, backgroundColor: colorStyles.bg }}
         >
           {club.member_count} {club.member_count === 1 ? "member" : "members"}

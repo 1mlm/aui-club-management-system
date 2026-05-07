@@ -59,7 +59,7 @@ const ACTION_ICON_MAP: Record<
   change_status: { icon: ICON_MAP.actions.status },
 };
 
-export function AdminTable<T extends { id?: number }>({
+export function AdminTable<T extends { id?: number | string }>({
   data,
   columns,
   searchKeys,
@@ -68,31 +68,67 @@ export function AdminTable<T extends { id?: number }>({
   title,
 }: AdminTableProps<T>) {
   const [search, setSearch] = React.useState("");
+  const [sortConfig, setSortConfig] = React.useState<{
+    key: keyof T | null;
+    direction: "asc" | "desc";
+  }>({ key: null, direction: "asc" });
 
-  const filteredData = useMemo(() => {
-    if (!search.trim() || !searchKeys || searchKeys.length === 0) return data;
-    const normalizedSearch = search.trim().toLowerCase();
-    return data.filter((row) =>
-      searchKeys.some((key) => {
-        const value = row[key];
-        return String(value).toLowerCase().includes(normalizedSearch);
-      }),
-    );
-  }, [data, search, searchKeys]);
+  const handleSort = (key: keyof T) => {
+    setSortConfig((prev) => ({
+      key,
+      direction: prev.key === key && prev.direction === "asc" ? "desc" : "asc",
+    }));
+  };
+
+  const processedData = useMemo(() => {
+    let result = [...data];
+
+    // Filter
+    if (search.trim() && searchKeys && searchKeys.length > 0) {
+      const normalizedSearch = search.trim().toLowerCase();
+      result = result.filter((row) =>
+        searchKeys.some((key) => {
+          const value = row[key];
+          return String(value).toLowerCase().includes(normalizedSearch);
+        }),
+      );
+    }
+
+    // Sort
+    if (sortConfig.key) {
+      result.sort((a, b) => {
+        const aVal = a[sortConfig.key!];
+        const bVal = b[sortConfig.key!];
+
+        if (aVal === bVal) return 0;
+        if (aVal === null || aVal === undefined) return 1;
+        if (bVal === null || bVal === undefined) return -1;
+
+        const comparison = String(aVal).localeCompare(String(bVal), undefined, {
+          numeric: true,
+          sensitivity: "base",
+        });
+
+        return sortConfig.direction === "asc" ? comparison : -comparison;
+      });
+    }
+
+    return result;
+  }, [data, search, searchKeys, sortConfig]);
 
   return (
     <div className="space-y-4">
       {title && (
         <div className="flex items-center justify-between">
-          <h1 className="text-xl font-semibold">{title}</h1>
+          <h1 className="text-xl font-bold tracking-tight">{title}</h1>
         </div>
       )}
 
       {searchKeys && searchKeys.length > 0 && (
         <div>
-          <InputGroup className="max-w-sm">
+          <InputGroup className="max-w-sm h-10">
             <InputGroupAddon>
-              <Icon icon={ICON_MAP.misc.search} />
+              <Icon icon={ICON_MAP.misc.search} className="text-muted-foreground" />
             </InputGroupAddon>
             <InputGroupInput
               type="text"
@@ -101,52 +137,66 @@ export function AdminTable<T extends { id?: number }>({
               onChange={(e) => setSearch(e.target.value)}
               className="h-10"
             />
-            <InputGroupAddon align="inline-end" className="text-xs text-muted-foreground tabular-nums px-3">
-              {filteredData.length} {filteredData.length === 1 ? "result" : "results"}
+            <InputGroupAddon align="inline-end" className="pr-3">
+              <span className="text-[10px] font-bold uppercase tracking-wider bg-muted px-1.5 py-0.5 rounded text-muted-foreground/70 tabular-nums">
+                {processedData.length} {processedData.length === 1 ? "result" : "results"}
+              </span>
             </InputGroupAddon>
           </InputGroup>
         </div>
       )}
 
-      <div className="overflow-x-auto rounded-lg border">
+      <div className="overflow-hidden rounded-xl border shadow-sm">
         <Table>
-          <TableHeader>
-            <TableRow>
+          <TableHeader className="bg-muted/30">
+            <TableRow className="hover:bg-transparent">
               {columns.map((col) => (
-                <TableHead key={String(col.key)}>
-                  <div className="flex items-center gap-1.5">
-                    {col.icon && <Icon icon={col.icon} className="size-3.5" />}
-                    <span>{col.label}</span>
-                  </div>
+                <TableHead key={String(col.key)} className="py-3 px-4">
+                  <button
+                    type="button"
+                    className="group flex items-center gap-2 cursor-pointer transition-colors w-full"
+                    onClick={() => handleSort(col.key)}
+                  >
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      {col.icon && <Icon icon={col.icon} className="size-3.5 text-muted-foreground group-hover:text-foreground transition-colors" />}
+                      <span className="truncate group-hover:text-foreground transition-colors font-semibold text-xs uppercase tracking-wider">{col.label}</span>
+                    </div>
+                    {sortConfig.key === col.key ? (
+                      <Icon icon={sortConfig.direction === "asc" ? ICON_MAP.actions.up : ICON_MAP.actions.down} className="size-3 text-primary animate-in fade-in zoom-in duration-200" />
+                    ) : (
+                      <Icon icon={ICON_MAP.actions.up} className="size-3 text-muted-foreground/20 opacity-0 group-hover:opacity-100 transition-all" />
+                    )}
+                  </button>
                 </TableHead>
               ))}
-              {actionButtons && <TableHead>Actions</TableHead>}
+              {actionButtons && <TableHead className="text-right py-3 px-4 font-semibold text-xs uppercase tracking-wider">Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredData.length === 0 ? (
+            {processedData.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={columns.length + (actionButtons ? 1 : 0)}
-                  className="text-center py-8 text-muted-foreground"
+                  className="text-center py-12 text-muted-foreground"
                 >
-                  <Icon icon={ICON_MAP.status.empty} className="size-8 mx-auto mb-2" />
-                  No records found
+                  <Icon icon={ICON_MAP.status.empty} className="size-10 mx-auto mb-3 opacity-20" />
+                  <p className="font-medium">No records found</p>
+                  <p className="text-xs opacity-60">Try adjusting your search filters</p>
                 </TableCell>
               </TableRow>
             ) : (
-              filteredData.map((row) => (
-                <TableRow key={row.id} className="group">
+              processedData.map((row) => (
+                <TableRow key={row.id} className="group transition-colors hover:bg-muted/20">
                   {columns.map((col) => (
-                    <TableCell key={String(col.key)}>
+                    <TableCell key={String(col.key)} className="py-3 px-4">
                       {col.render
                         ? col.render(row[col.key], row)
-                        : String(row[col.key])}
+                        : <span className="text-sm font-medium">{String(row[col.key])}</span>}
                     </TableCell>
                   ))}
                   {actionButtons && (
-                    <TableCell>
-                      <div className="flex justify-end gap-0.5 opacity-0 transition-opacity group-hover:opacity-100">
+                    <TableCell className="py-3 px-4 text-right">
+                      <div className="flex justify-end gap-1 opacity-0 transition-opacity group-hover:opacity-100">
                         {actionButtons(row).map((btn) => {
                           const mapped = ACTION_ICON_MAP[btn.action];
                           const icon = btn.icon ?? mapped?.icon ?? ICON_MAP.actions.edit;
@@ -154,10 +204,10 @@ export function AdminTable<T extends { id?: number }>({
                             <IconBtn
                               key={btn.action}
                               tooltip={btn.label}
-                              className={cn(mapped?.className, btn.className)}
+                              className={cn("size-8 rounded-lg", mapped?.className, btn.className)}
                               onClick={() => onRowAction?.(row, btn.action)}
                             >
-                              <Icon icon={icon} />
+                              <Icon icon={icon} className="size-3.5" />
                             </IconBtn>
                           );
                         })}

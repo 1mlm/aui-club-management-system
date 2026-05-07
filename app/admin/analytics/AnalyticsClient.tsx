@@ -1,16 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useMemo, useState } from "react";
 import type { AnalyticsData } from "@/db/analytics";
-import { getClubColorStyles } from "@/util/clubStyles";
-import { ALLOWED_ICON_MAP } from "@/db/catalog";
-import { Icon } from "@/shadcn/cpns/Icon";
-import { ICON_MAP } from "@/lib/icon-map";
 import type { ClubColor, ClubIconKey } from "@/db/catalog";
+import { ALLOWED_ICON_MAP } from "@/db/catalog";
 import type { ActivityLogEntry } from "@/db/types";
+import { ICON_MAP } from "@/lib/icon-map";
+import { Icon } from "@/shadcn/cpns/Icon";
 import { cn } from "@/shadcn/lib/utils";
+import { getClubColorStyles } from "@/util/clubStyles";
 
-type ShowMode = "members" | "posts" | "join_requests" | "club_requests" | "activity";
+type ShowMode =
+  | "members"
+  | "posts"
+  | "join_requests"
+  | "club_requests"
+  | "activity";
 type DisplayMode = "bars" | "list" | "table";
 
 const SHOW_OPTIONS: { value: ShowMode; label: string }[] = [
@@ -33,21 +38,33 @@ const ACTION_LABELS: Record<string, string> = {
 };
 
 const ACTION_COLORS: Record<string, string> = {
-  post_created: "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800",
-  post_deleted: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800",
-  post_pinned: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-  post_unpinned: "bg-slate-100 text-slate-600 dark:bg-slate-800/50 dark:text-slate-400 border-slate-200 dark:border-slate-700",
-  join_approved: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800",
-  join_rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800",
-  join_waitlisted: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800",
-  club_created: "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-purple-200 dark:border-purple-800",
+  post_created:
+    "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 border-blue-200 dark:border-blue-800",
+  post_deleted:
+    "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800",
+  post_pinned:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+  post_unpinned:
+    "bg-slate-100 text-slate-600 dark:bg-slate-800/50 dark:text-slate-400 border-slate-200 dark:border-slate-700",
+  join_approved:
+    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800",
+  join_rejected:
+    "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800",
+  join_waitlisted:
+    "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800",
+  club_created:
+    "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-purple-200 dark:border-purple-800",
 };
 
 const STATUS_COLORS: Record<string, string> = {
-  pending: "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800",
-  approved: "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800",
-  rejected: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800",
-  waitlisted: "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800",
+  pending:
+    "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-200 dark:border-amber-800",
+  approved:
+    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 border-green-200 dark:border-green-800",
+  rejected:
+    "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 border-red-200 dark:border-red-800",
+  waitlisted:
+    "bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 border-orange-200 dark:border-orange-800",
 };
 
 // ── Sub-views ────────────────────────────────────────────────────────────────
@@ -62,29 +79,47 @@ function ClubsView({
   display: DisplayMode;
 }) {
   const counts = clubs.map((c) =>
-    "member_count" in c ? (c as { member_count: number }).member_count : (c as { post_count: number }).post_count
+    "member_count" in c
+      ? (c as { member_count: number }).member_count
+      : (c as { post_count: number }).post_count,
   );
   const max = Math.max(...counts, 1);
 
   if (clubs.length === 0) {
-    return <p className="text-sm text-muted-foreground text-center py-8">No data.</p>;
+    return (
+      <p className="text-sm text-muted-foreground text-center py-8">No data.</p>
+    );
   }
 
   if (display === "list") {
     return (
       <ol className="space-y-2">
         {clubs.map((club, i) => {
-          const styles = getClubColorStyles((club.color as ClubColor) ?? undefined);
-          const iconComp = club.icon ? ALLOWED_ICON_MAP[club.icon as ClubIconKey] : ALLOWED_ICON_MAP.KNOWLEDGE;
+          const styles = getClubColorStyles(
+            (club.color as ClubColor) ?? undefined,
+          );
+          const iconComp = club.icon
+            ? ALLOWED_ICON_MAP[club.icon as ClubIconKey]
+            : ALLOWED_ICON_MAP.KNOWLEDGE;
           const count = counts[i];
           return (
             <li key={club.club_id} className="flex items-center gap-3 text-sm">
-              <span className="text-muted-foreground tabular-nums w-5 text-right shrink-0">{i + 1}.</span>
+              <span className="text-muted-foreground tabular-nums w-5 text-right shrink-0">
+                {i + 1}.
+              </span>
               <span
                 className="flex size-6 items-center justify-center rounded-full shrink-0"
-                style={{ backgroundColor: styles.bg, border: `1.5px solid ${styles.border}` }}
+                style={{
+                  backgroundColor: styles.bg,
+                  border: `1.5px solid ${styles.border}`,
+                }}
               >
-                <Icon icon={iconComp} className="size-3.5" style={{ color: styles.text }} strokeWidth={2} />
+                <Icon
+                  icon={iconComp}
+                  className="size-3.5"
+                  style={{ color: styles.text }}
+                  strokeWidth={2}
+                />
               </span>
               <span className="font-medium truncate flex-1">{club.name}</span>
               <span className="tabular-nums text-muted-foreground font-mono text-xs">
@@ -100,8 +135,12 @@ function ClubsView({
   return (
     <div className="space-y-3">
       {clubs.map((club, i) => {
-        const styles = getClubColorStyles((club.color as ClubColor) ?? undefined);
-        const iconComp = club.icon ? ALLOWED_ICON_MAP[club.icon as ClubIconKey] : ALLOWED_ICON_MAP.KNOWLEDGE;
+        const styles = getClubColorStyles(
+          (club.color as ClubColor) ?? undefined,
+        );
+        const iconComp = club.icon
+          ? ALLOWED_ICON_MAP[club.icon as ClubIconKey]
+          : ALLOWED_ICON_MAP.KNOWLEDGE;
         const count = counts[i];
         const pct = Math.round((count / max) * 100);
         return (
@@ -110,13 +149,25 @@ function ClubsView({
               <div className="flex items-center gap-2">
                 <span
                   className="flex size-5 items-center justify-center rounded-full shrink-0"
-                  style={{ backgroundColor: styles.bg, border: `1.5px solid ${styles.border}` }}
+                  style={{
+                    backgroundColor: styles.bg,
+                    border: `1.5px solid ${styles.border}`,
+                  }}
                 >
-                  <Icon icon={iconComp} className="size-3" style={{ color: styles.text }} strokeWidth={2} />
+                  <Icon
+                    icon={iconComp}
+                    className="size-3"
+                    style={{ color: styles.text }}
+                    strokeWidth={2}
+                  />
                 </span>
-                <span className="font-medium truncate max-w-40">{club.name}</span>
+                <span className="font-medium truncate max-w-40">
+                  {club.name}
+                </span>
               </div>
-              <span className="text-muted-foreground tabular-nums text-xs">{count}</span>
+              <span className="text-muted-foreground tabular-nums text-xs">
+                {count}
+              </span>
             </div>
             <div className="h-1.5 rounded-full bg-muted overflow-hidden">
               <div
@@ -141,7 +192,11 @@ function RequestStatsView({
   const max = Math.max(...items.map((i) => i.value), 1);
 
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground text-center py-8">No statuses selected.</p>;
+    return (
+      <p className="text-sm text-muted-foreground text-center py-8">
+        No statuses selected.
+      </p>
+    );
   }
 
   if (display === "list") {
@@ -152,7 +207,7 @@ function RequestStatsView({
             key={key}
             className={cn(
               "flex flex-col items-center px-5 py-4 rounded-xl border min-w-24",
-              STATUS_COLORS[key] ?? "bg-muted text-foreground border-border"
+              STATUS_COLORS[key] ?? "bg-muted text-foreground border-border",
             )}
           >
             <span className="text-2xl font-bold tabular-nums">{value}</span>
@@ -169,23 +224,29 @@ function RequestStatsView({
         const pct = Math.round((value / max) * 100);
         const colorClass = STATUS_COLORS[key] ?? "";
         const barColor =
-          key === "pending" ? "#d97706"
-          : key === "approved" ? "#16a34a"
-          : key === "rejected" ? "#dc2626"
-          : key === "waitlisted" ? "#ea580c"
-          : "#6b7280";
+          key === "pending"
+            ? "#d97706"
+            : key === "approved"
+              ? "#16a34a"
+              : key === "rejected"
+                ? "#dc2626"
+                : key === "waitlisted"
+                  ? "#ea580c"
+                  : "#6b7280";
         return (
           <div key={key} className="space-y-1.5">
             <div className="flex items-center justify-between text-sm">
               <span
                 className={cn(
                   "px-2.5 py-0.5 rounded-full text-xs font-medium border capitalize",
-                  colorClass
+                  colorClass,
                 )}
               >
                 {key}
               </span>
-              <span className="text-muted-foreground tabular-nums text-xs">{value}</span>
+              <span className="text-muted-foreground tabular-nums text-xs">
+                {value}
+              </span>
             </div>
             <div className="h-1.5 rounded-full bg-muted overflow-hidden">
               <div
@@ -208,24 +269,34 @@ function ActivityView({
   display: DisplayMode;
 }) {
   if (items.length === 0) {
-    return <p className="text-sm text-muted-foreground text-center py-8">No activity matches the current filters.</p>;
+    return (
+      <p className="text-sm text-muted-foreground text-center py-8">
+        No activity matches the current filters.
+      </p>
+    );
   }
 
   if (display === "list") {
     return (
       <div className="space-y-2">
         {items.map((entry) => (
-          <div key={entry.log_id} className="flex items-center gap-3 text-sm py-1">
+          <div
+            key={entry.log_id}
+            className="flex items-center gap-3 text-sm py-1"
+          >
             <span
               className={cn(
                 "px-2 py-0.5 rounded-full text-xs font-medium border shrink-0",
-                ACTION_COLORS[entry.action] ?? "bg-muted text-muted-foreground border-border"
+                ACTION_COLORS[entry.action] ??
+                "bg-muted text-muted-foreground border-border",
               )}
             >
               {ACTION_LABELS[entry.action] ?? entry.action}
             </span>
             {entry.detail && (
-              <span className="text-muted-foreground truncate flex-1 hidden sm:block">{entry.detail}</span>
+              <span className="text-muted-foreground truncate flex-1 hidden sm:block">
+                {entry.detail}
+              </span>
             )}
             <span className="text-xs text-muted-foreground whitespace-nowrap ml-auto">
               {new Date(entry.created_at).toLocaleDateString()}
@@ -247,21 +318,28 @@ function ActivityView({
             <span
               className={cn(
                 "px-2 py-0.5 rounded-full text-xs font-medium border shrink-0",
-                ACTION_COLORS[entry.action] ?? "bg-muted text-muted-foreground border-border"
+                ACTION_COLORS[entry.action] ??
+                "bg-muted text-muted-foreground border-border",
               )}
             >
               {ACTION_LABELS[entry.action] ?? entry.action}
             </span>
             {entry.detail && (
-              <span className="text-muted-foreground truncate max-w-48 hidden md:block">{entry.detail}</span>
+              <span className="text-muted-foreground truncate max-w-48 hidden md:block">
+                {entry.detail}
+              </span>
             )}
           </div>
           <div className="flex items-center gap-4 shrink-0 text-muted-foreground ml-4">
             {entry.club_name && (
-              <span className="hidden sm:block truncate max-w-28 text-xs">{entry.club_name}</span>
+              <span className="hidden sm:block truncate max-w-28 text-xs">
+                {entry.club_name}
+              </span>
             )}
             {entry.actor_name && (
-              <span className="hidden md:block truncate max-w-28 text-xs">{entry.actor_name}</span>
+              <span className="hidden md:block truncate max-w-28 text-xs">
+                {entry.actor_name}
+              </span>
             )}
             <span className="text-xs whitespace-nowrap">
               {new Date(entry.created_at).toLocaleDateString()}
@@ -295,7 +373,9 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
   };
 
   const toggleFilter = (f: string) =>
-    setActiveFilters((prev) => (prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f]));
+    setActiveFilters((prev) =>
+      prev.includes(f) ? prev.filter((x) => x !== f) : [...prev, f],
+    );
 
   const clubsData = useMemo(() => {
     const src = show === "members" ? data.clubsByMembers : data.clubsByPosts;
@@ -304,63 +384,117 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
 
   const filteredActivity = useMemo(() => {
     let items = data.recentActivity;
-    if (dateFrom) items = items.filter((e) => new Date(e.created_at) >= new Date(dateFrom));
-    if (dateTo) items = items.filter((e) => new Date(e.created_at) <= new Date(`${dateTo}T23:59:59`));
-    if (activeFilters.length > 0) items = items.filter((e) => activeFilters.includes(e.action));
+    if (dateFrom)
+      items = items.filter((e) => new Date(e.created_at) >= new Date(dateFrom));
+    if (dateTo)
+      items = items.filter(
+        (e) => new Date(e.created_at) <= new Date(`${dateTo}T23:59:59`),
+      );
+    if (activeFilters.length > 0)
+      items = items.filter((e) => activeFilters.includes(e.action));
     return items;
   }, [data.recentActivity, dateFrom, dateTo, activeFilters]);
 
   const joinStats = useMemo(() => {
     const statuses = ["pending", "approved", "rejected", "waitlisted"] as const;
-    const filtered = activeFilters.length > 0 ? statuses.filter((s) => activeFilters.includes(s)) : statuses;
+    const filtered =
+      activeFilters.length > 0
+        ? statuses.filter((s) => activeFilters.includes(s))
+        : statuses;
     return filtered.map((s) => ({ key: s, value: data.joinRequestStats[s] }));
   }, [data.joinRequestStats, activeFilters]);
 
   const clubStats = useMemo(() => {
     const statuses = ["pending", "approved", "rejected"] as const;
-    const filtered = activeFilters.length > 0 ? statuses.filter((s) => activeFilters.includes(s)) : statuses;
+    const filtered =
+      activeFilters.length > 0
+        ? statuses.filter((s) => activeFilters.includes(s))
+        : statuses;
     return filtered.map((s) => ({ key: s, value: data.clubCreationStats[s] }));
   }, [data.clubCreationStats, activeFilters]);
 
-  const filterOptions: { value: string; label: string; colorClass: string }[] = useMemo(() => {
-    if (show === "join_requests") {
-      return [
-        { value: "pending", label: "Pending", colorClass: STATUS_COLORS.pending },
-        { value: "approved", label: "Approved", colorClass: STATUS_COLORS.approved },
-        { value: "rejected", label: "Rejected", colorClass: STATUS_COLORS.rejected },
-        { value: "waitlisted", label: "Waitlisted", colorClass: STATUS_COLORS.waitlisted },
-      ];
-    }
-    if (show === "club_requests") {
-      return [
-        { value: "pending", label: "Pending", colorClass: STATUS_COLORS.pending },
-        { value: "approved", label: "Approved", colorClass: STATUS_COLORS.approved },
-        { value: "rejected", label: "Rejected", colorClass: STATUS_COLORS.rejected },
-      ];
-    }
-    if (show === "activity") {
-      return Object.entries(ACTION_LABELS).map(([value, label]) => ({
-        value,
-        label,
-        colorClass: ACTION_COLORS[value] ?? "bg-muted text-muted-foreground border-border",
-      }));
-    }
-    return [];
-  }, [show]);
+  const filterOptions: { value: string; label: string; colorClass: string }[] =
+    useMemo(() => {
+      if (show === "join_requests") {
+        return [
+          {
+            value: "pending",
+            label: "Pending",
+            colorClass: STATUS_COLORS.pending,
+          },
+          {
+            value: "approved",
+            label: "Approved",
+            colorClass: STATUS_COLORS.approved,
+          },
+          {
+            value: "rejected",
+            label: "Rejected",
+            colorClass: STATUS_COLORS.rejected,
+          },
+          {
+            value: "waitlisted",
+            label: "Waitlisted",
+            colorClass: STATUS_COLORS.waitlisted,
+          },
+        ];
+      }
+      if (show === "club_requests") {
+        return [
+          {
+            value: "pending",
+            label: "Pending",
+            colorClass: STATUS_COLORS.pending,
+          },
+          {
+            value: "approved",
+            label: "Approved",
+            colorClass: STATUS_COLORS.approved,
+          },
+          {
+            value: "rejected",
+            label: "Rejected",
+            colorClass: STATUS_COLORS.rejected,
+          },
+        ];
+      }
+      if (show === "activity") {
+        return Object.entries(ACTION_LABELS).map(([value, label]) => ({
+          value,
+          label,
+          colorClass:
+            ACTION_COLORS[value] ??
+            "bg-muted text-muted-foreground border-border",
+        }));
+      }
+      return [];
+    }, [show]);
 
-  const displayModes: { value: DisplayMode; icon: React.ReactNode; show: boolean }[] = [
-    { value: "bars", icon: <Icon icon={ICON_MAP.nav.browse} className="size-3.5" />, show: showClubs || showRequests },
-    { value: "list", icon: <Icon icon={ICON_MAP.nav.users} className="size-3.5" />, show: true },
-    { value: "table", icon: <Icon icon={ICON_MAP.actions.status} className="size-3.5" />, show: showActivity },
+  const displayModes: { value: any; icon: React.ReactNode; show: boolean }[] = [
+    {
+      value: "bars",
+      icon: <Icon icon={ICON_MAP.nav.browse} className="size-3.5" />,
+      show: showClubs || showRequests,
+    },
+    {
+      value: "list",
+      icon: <Icon icon={ICON_MAP.nav.users} className="size-3.5" />,
+      show: true,
+    },
+    {
+      value: "table",
+      icon: <Icon icon={ICON_MAP.actions.status} className="size-3.5" />,
+      show: showActivity,
+    },
   ].filter((m) => m.show);
 
   const resultCount = showClubs
     ? clubsData.length
     : showActivity
-    ? filteredActivity.length
-    : show === "join_requests"
-    ? joinStats.reduce((a, b) => a + b.value, 0)
-    : clubStats.reduce((a, b) => a + b.value, 0);
+      ? filteredActivity.length
+      : show === "join_requests"
+        ? joinStats.reduce((a, b) => a + b.value, 0)
+        : clubStats.reduce((a, b) => a + b.value, 0);
 
   return (
     <div className="space-y-3">
@@ -380,7 +514,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                   "px-3 py-1 rounded-full text-xs font-medium transition-all border",
                   show === opt.value
                     ? "bg-foreground text-background border-foreground"
-                    : "bg-transparent text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground"
+                    : "bg-transparent text-muted-foreground border-border hover:border-foreground/40 hover:text-foreground",
                 )}
               >
                 {opt.label}
@@ -389,7 +523,9 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
           </div>
 
           <div className="ml-auto flex items-center gap-3">
-            <span className="text-xs text-muted-foreground tabular-nums">{resultCount} total</span>
+            <span className="text-xs text-muted-foreground tabular-nums">
+              {resultCount} total
+            </span>
             <div className="flex items-center border rounded-lg overflow-hidden">
               {displayModes.map(({ value, icon }) => (
                 <button
@@ -399,7 +535,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                     "px-2.5 py-1.5 transition-colors",
                     display === value
                       ? "bg-foreground text-background"
-                      : "text-muted-foreground hover:bg-muted"
+                      : "text-muted-foreground hover:bg-muted",
                   )}
                 >
                   {icon}
@@ -415,7 +551,9 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
             {/* Limit selector (clubs only) */}
             {showClubs && (
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground font-semibold uppercase tracking-wider">Top</span>
+                <span className="text-muted-foreground font-semibold uppercase tracking-wider">
+                  Top
+                </span>
                 <div className="flex gap-1">
                   {([3, 5, 10] as const).map((n) => (
                     <button
@@ -425,7 +563,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                         "px-2 py-0.5 rounded-md border font-medium transition-colors",
                         limit === n
                           ? "bg-foreground text-background border-foreground"
-                          : "bg-transparent text-muted-foreground border-border hover:border-foreground/40"
+                          : "bg-transparent text-muted-foreground border-border hover:border-foreground/40",
                       )}
                     >
                       {n}
@@ -438,7 +576,9 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
             {/* Date range (activity only) */}
             {showActivity && (
               <div className="flex items-center gap-2">
-                <span className="text-muted-foreground font-semibold uppercase tracking-wider">Between</span>
+                <span className="text-muted-foreground font-semibold uppercase tracking-wider">
+                  Between
+                </span>
                 <input
                   type="date"
                   value={dateFrom}
@@ -454,7 +594,10 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                 />
                 {(dateFrom || dateTo) && (
                   <button
-                    onClick={() => { setDateFrom(""); setDateTo(""); }}
+                    onClick={() => {
+                      setDateFrom("");
+                      setDateTo("");
+                    }}
                     className="text-muted-foreground hover:text-foreground"
                   >
                     <Icon icon={ICON_MAP.misc.close} className="size-3" />
@@ -479,7 +622,7 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
                         "px-2.5 py-0.5 rounded-full font-medium border transition-all",
                         active
                           ? opt.colorClass
-                          : "bg-transparent text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground opacity-50 hover:opacity-80"
+                          : "bg-transparent text-muted-foreground border-border hover:border-foreground/30 hover:text-foreground opacity-50 hover:opacity-80",
                       )}
                     >
                       {opt.label}
@@ -503,7 +646,11 @@ export function AnalyticsClient({ data }: { data: AnalyticsData }) {
       {/* Visualization */}
       <div className="rounded-xl border bg-card p-5 min-h-48">
         {showClubs && (
-          <ClubsView clubs={clubsData} metric={show as "members" | "posts"} display={display} />
+          <ClubsView
+            clubs={clubsData}
+            metric={show as "members" | "posts"}
+            display={display}
+          />
         )}
         {show === "join_requests" && (
           <RequestStatsView items={joinStats} display={display} />

@@ -107,11 +107,17 @@ export async function registerUser({
   const pool = getDbPool();
   const passwordHash = await bcrypt.hash(password, PASSWORD_SALT_ROUNDS);
 
+  const idRes = await pool.query<{ next_id: number }>(
+    `SELECT COALESCE(MAX(user_id),0)+1 AS next_id FROM "user";`,
+  );
+  const newUserId = idRes.rows[0].next_id;
+
   const inserted = await pool.query<
     Pick<UserRow, "user_id" | "email" | "fname" | "lname" | "display_name">
   >(
     `
-    INSERT INTO users (
+    INSERT INTO "user" (
+      user_id,
       email,
       fname,
       lname,
@@ -120,10 +126,17 @@ export async function registerUser({
       is_system_admin,
       created_at
     )
-    VALUES ($1, $2, $3, $4, $5, FALSE, NOW())
+    VALUES ($1, $2, $3, $4, $5, $6, FALSE, NOW())
     RETURNING user_id, email, fname, lname, display_name;
   `,
-    [normalizedEmail, fname, lname, normalizedDisplayName, passwordHash],
+    [
+      newUserId,
+      normalizedEmail,
+      fname,
+      lname,
+      normalizedDisplayName,
+      passwordHash,
+    ],
   );
 
   const row = inserted.rows[0];
@@ -162,18 +175,16 @@ export async function loginUser({
       u.is_system_admin,
       (
         SELECT COUNT(DISTINCT c.club_id)::int
-        FROM club c
+        FROM "club" c
         WHERE c.owner_id = u.user_id AND c.status = 'active'
       ) + (
         SELECT COUNT(DISTINCT m.club_id)::int
         FROM membership m
-        INNER JOIN club c ON c.club_id = m.club_id
+        INNER JOIN "club" c ON c.club_id = m.club_id
         WHERE m.user_id = u.user_id
-          AND m.membership_status = 'active'
-          AND m.left_at IS NULL
           AND c.status = 'active'
       ) AS club_count
-    FROM users u
+    FROM "user" u
     WHERE u.email = $1
     LIMIT 1;
   `,
@@ -207,18 +218,16 @@ export async function getUserById(userId: number): Promise<AuthUser | null> {
       u.is_system_admin,
       (
         SELECT COUNT(DISTINCT c.club_id)::int
-        FROM club c
+        FROM "club" c
         WHERE c.owner_id = u.user_id AND c.status = 'active'
       ) + (
         SELECT COUNT(DISTINCT m.club_id)::int
         FROM membership m
-        INNER JOIN club c ON c.club_id = m.club_id
+        INNER JOIN "club" c ON c.club_id = m.club_id
         WHERE m.user_id = u.user_id
-          AND m.membership_status = 'active'
-          AND m.left_at IS NULL
           AND c.status = 'active'
       ) AS club_count
-    FROM users u
+    FROM "user" u
     WHERE u.user_id = $1
     LIMIT 1;
   `,
@@ -240,15 +249,13 @@ async function getClubCountByUserId(userId: number): Promise<number> {
     SELECT
       (
         SELECT COUNT(DISTINCT c.club_id)::int
-        FROM club c
+        FROM "club" c
         WHERE c.owner_id = $1 AND c.status = 'active'
       ) + (
         SELECT COUNT(DISTINCT m.club_id)::int
         FROM membership m
-        INNER JOIN club c ON c.club_id = m.club_id
+        INNER JOIN "club" c ON c.club_id = m.club_id
         WHERE m.user_id = $1
-          AND m.membership_status = 'active'
-          AND m.left_at IS NULL
           AND c.status = 'active'
       ) AS club_count;
   `,

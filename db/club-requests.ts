@@ -1,5 +1,4 @@
 import { getDbPool } from "@/db/client";
-import { validateClubColor, validateClubIcon } from "@/db/validators";
 
 export type ClubCreationRequest = {
   id: number;
@@ -12,11 +11,12 @@ export type ClubCreationRequest = {
   icon: string | null;
   email: string;
   status: "pending" | "approved" | "rejected";
-  reviewerMessage: string | null;
   createdAt: string;
 };
 
-export async function getAllClubCreationRequests(): Promise<ClubCreationRequest[]> {
+export async function getAllClubCreationRequests(): Promise<
+  ClubCreationRequest[]
+> {
   const pool = getDbPool();
   const result = await pool.query<{
     request_id: number;
@@ -29,7 +29,6 @@ export async function getAllClubCreationRequests(): Promise<ClubCreationRequest[
     icon_name: string | null;
     email: string;
     status: string;
-    reviewer_message: string | null;
     created_at: string;
   }>(`
     SELECT
@@ -43,10 +42,9 @@ export async function getAllClubCreationRequests(): Promise<ClubCreationRequest[
       r.icon_name,
       r.email,
       r.status,
-      r.reviewer_message,
       r.created_at
-    FROM club_creation_request r
-    JOIN users u ON u.user_id = r.initiator_user_id
+    FROM "club_creation_request" r
+    JOIN "user" u ON u.user_id = r.initiator_user_id
     ORDER BY r.created_at DESC;
   `);
 
@@ -61,7 +59,7 @@ export async function getAllClubCreationRequests(): Promise<ClubCreationRequest[
     icon: row.icon_name,
     email: row.email,
     status: row.status as "pending" | "approved" | "rejected",
-    reviewerMessage: row.reviewer_message,
+    // reviewerMessage removed from schema
     createdAt: row.created_at,
   }));
 }
@@ -77,29 +75,39 @@ export async function submitClubCreationRequest(data: {
   const pool = getDbPool();
 
   const existing = await pool.query(
-    `SELECT request_id FROM club_creation_request
+    `SELECT request_id FROM "club_creation_request"
      WHERE initiator_user_id = $1 AND LOWER(name) = LOWER($2) AND status = 'pending' LIMIT 1`,
-    [data.userId, data.name]
+    [data.userId, data.name],
   );
   if (existing.rows.length > 0) {
-    throw new Error("You already have a pending request for a club with this name.");
+    throw new Error(
+      "You already have a pending request for a club with this name.",
+    );
   }
 
+  const idRes = await pool.query<{ next_id: number }>(
+    `SELECT COALESCE(MAX(request_id),0)+1 AS next_id FROM "club_creation_request";`,
+  );
+  const newReqId = idRes.rows[0].next_id;
   await pool.query(
-    `INSERT INTO club_creation_request (initiator_user_id, name, description, main_color, icon_name, email)
-     VALUES ($1, $2, $3, $4, $5, $6)`,
+    `INSERT INTO "club_creation_request" (request_id, initiator_user_id, name, description, main_color, icon_name, email)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)`,
     [
+      newReqId,
       data.userId,
       data.name.trim(),
       data.description?.trim() || null,
       data.color || null,
       data.icon || null,
       data.email.trim().toLowerCase(),
-    ]
+    ],
   );
 }
 
-export async function approveClubCreationRequest(requestId: number, reviewerId: number): Promise<void> {
+export async function approveClubCreationRequest(
+  requestId: number,
+  reviewerId: number,
+): Promise<void> {
   const pool = getDbPool();
 
   const result = await pool.query<{
@@ -111,42 +119,56 @@ export async function approveClubCreationRequest(requestId: number, reviewerId: 
     email: string;
   }>(
     `SELECT initiator_user_id, name, description, main_color, icon_name, email
-     FROM club_creation_request WHERE request_id = $1 AND status = 'pending'`,
-    [requestId]
+     FROM "club_creation_request" WHERE request_id = $1 AND status = 'pending'`,
+    [requestId],
   );
 
   const req = result.rows[0];
   if (!req) throw new Error("Request not found or already reviewed.");
 
+  const clubIdRes = await pool.query<{ next_id: number }>(
+    `SELECT COALESCE(MAX(club_id),0)+1 AS next_id FROM "club";`,
+  );
+  const newClubId = clubIdRes.rows[0].next_id;
   await pool.query(
-    `INSERT INTO club (owner_id, name, description, main_color, icon_name, email, status)
-     VALUES ($1, $2, $3, $4, $5, $6, 'active')`,
-    [req.initiator_user_id, req.name, req.description, req.main_color, req.icon_name, req.email]
+    `INSERT INTO "club" (club_id, owner_id, name, description, main_color, icon_name, email, status)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, 'active')`,
+    [
+      newClubId,
+      req.initiator_user_id,
+      req.name,
+      req.description,
+      req.main_color,
+      req.icon_name,
+      req.email,
+    ],
   );
 
   await pool.query(
-    `UPDATE club_creation_request
-     SET status = 'approved', reviewer_user_id = $1, reviewed_at = NOW()
-     WHERE request_id = $2`,
-    [reviewerId, requestId]
+    `UPDATE "club_creation_request"
+     SET status = 'approved', reviewed_at = NOW()
+     WHERE request_id = $1`,
+    [requestId],
   );
 }
 
 export async function rejectClubCreationRequest(
   requestId: number,
   reviewerId: number,
-  reviewerMessage?: string
+  reviewerMessage?: string,
 ): Promise<void> {
   const pool = getDbPool();
   await pool.query(
-    `UPDATE club_creation_request
-     SET status = 'rejected', reviewer_user_id = $1, reviewed_at = NOW(), reviewer_message = $2
-     WHERE request_id = $3`,
-    [reviewerId, reviewerMessage || null, requestId]
+    `UPDATE "club_creation_request"
+     SET status = 'rejected', reviewed_at = NOW()
+     WHERE request_id = $1`,
+    [requestId],
   );
 }
 
-export async function getUserClubCreationRequests(userId: number): Promise<ClubCreationRequest[]> {
+export async function getUserClubCreationRequests(
+  userId: number,
+): Promise<ClubCreationRequest[]> {
   const pool = getDbPool();
   const result = await pool.query<{
     request_id: number;
@@ -159,9 +181,9 @@ export async function getUserClubCreationRequests(userId: number): Promise<ClubC
     icon_name: string | null;
     email: string;
     status: string;
-    reviewer_message: string | null;
     created_at: string;
-  }>(`
+  }>(
+    `
     SELECT
       r.request_id,
       r.initiator_user_id,
@@ -173,13 +195,14 @@ export async function getUserClubCreationRequests(userId: number): Promise<ClubC
       r.icon_name,
       r.email,
       r.status,
-      r.reviewer_message,
       r.created_at
-    FROM club_creation_request r
-    JOIN users u ON u.user_id = r.initiator_user_id
+    FROM "club_creation_request" r
+    JOIN "user" u ON u.user_id = r.initiator_user_id
     WHERE r.initiator_user_id = $1
     ORDER BY r.created_at DESC;
-  `, [userId]);
+  `,
+    [userId],
+  );
 
   return result.rows.map((row) => ({
     id: row.request_id,
@@ -192,7 +215,7 @@ export async function getUserClubCreationRequests(userId: number): Promise<ClubC
     icon: row.icon_name,
     email: row.email,
     status: row.status as "pending" | "approved" | "rejected",
-    reviewerMessage: row.reviewer_message,
+    // reviewerMessage removed from schema
     createdAt: row.created_at,
   }));
 }

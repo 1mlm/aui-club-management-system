@@ -23,10 +23,12 @@ export default function AdminLayout({
     }
   }, [loading, router, user]);
 
+  // While loading, render children dimmed so server-rendered content appears
+  // immediately and doesn't get stuck behind an infinite spinner.
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <p className="text-muted-foreground">Loading...</p>
+      <div className="space-y-4 animate-pulse pointer-events-none opacity-50">
+        {children}
       </div>
     );
   }
@@ -35,15 +37,5 @@ export default function AdminLayout({
     return null;
   }
 
-  return (
-    <div className="space-y-4">
-      <div className="mb-2">
-        <h1 className="text-xl font-semibold">Admin Dashboard</h1>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Manage users, clubs, join requests, and club creation requests
-        </p>
-      </div>
-      {children}
-    </div>
-  );
+  return <div className="space-y-4">{children}</div>;
 }

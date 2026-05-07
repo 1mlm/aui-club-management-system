@@ -16,11 +16,11 @@ const main = async () => {
 
     const result = await client.query(`
       SELECT
-        (SELECT COUNT(*) FROM users) as user_count,
-        (SELECT COUNT(*) FROM club) as club_count,
+        (SELECT COUNT(*) FROM "user") as user_count,
+        (SELECT COUNT(*) FROM "club") as club_count,
         (SELECT COUNT(*) FROM membership) as membership_count,
-        (SELECT COUNT(*) FROM post) as post_count,
-        (SELECT COUNT(*) FROM joinrequest) as joinrequest_count;
+        (SELECT COUNT(*) FROM "post") as post_count,
+        (SELECT COUNT(*) FROM "joinrequest") as joinrequest_count;
     `);
 
     const counts = result.rows[0];

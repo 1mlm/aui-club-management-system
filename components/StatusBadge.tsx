@@ -1,8 +1,7 @@
 "use client";
 
-import React from "react";
-import { Icon } from "@/shadcn/cpns/Icon";
 import { ICON_MAP } from "@/lib/icon-map";
+import { Icon } from "@/shadcn/cpns/Icon";
 import { cn } from "@/shadcn/lib/utils";
 import type { Hugeicon } from "@/util/hugeicons";
 
@@ -30,33 +29,7 @@ const CONFIG_MAP: Record<string, Record<string, BadgeConfig>> = {
       className: "bg-slate-500/10 text-slate-500 border-slate-500/20",
     },
   },
-  membership_status: {
-    active: {
-      label: "Member",
-      icon: ICON_MAP.status.success,
-      className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    },
-    pending: {
-      label: "Pending",
-      icon: ICON_MAP.status.pending,
-      className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
-    },
-    rejected: {
-      label: "Rejected",
-      icon: ICON_MAP.status.error,
-      className: "bg-destructive/10 text-destructive border-destructive/20",
-    },
-    left: {
-      label: "Left",
-      icon: ICON_MAP.actions.leave,
-      className: "bg-slate-500/10 text-slate-500 border-slate-500/20",
-    },
-    banned: {
-      label: "Banned",
-      icon: ICON_MAP.status.error,
-      className: "bg-red-600/10 text-red-600 border-red-600/20",
-    },
-  },
+
   membership_role: {
     board_member: {
       label: "Board Member",
@@ -98,6 +71,23 @@ const CONFIG_MAP: Record<string, Record<string, BadgeConfig>> = {
       className: "bg-slate-500/10 text-slate-500 border-slate-500/20",
     },
   },
+  creation_request_status: {
+    pending: {
+      label: "Pending",
+      icon: ICON_MAP.status.pending,
+      className: "bg-amber-500/10 text-amber-500 border-amber-500/20",
+    },
+    approved: {
+      label: "Approved",
+      icon: ICON_MAP.status.success,
+      className: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+    },
+    rejected: {
+      label: "Rejected",
+      icon: ICON_MAP.status.error,
+      className: "bg-destructive/10 text-destructive border-destructive/20",
+    },
+  },
 };
 
 type StatusBadgeProps = {
@@ -119,7 +109,7 @@ export function StatusBadge({ type, value, className }: StatusBadgeProps) {
       className={cn(
         "inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full border text-xs font-medium",
         config.className,
-        className
+        className,
       )}
     >
       <Icon icon={config.icon} className="size-3" />

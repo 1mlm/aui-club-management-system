@@ -11,6 +11,9 @@ const runSql = async (client: Client, sqlText: string, label: string) => {
     console.log(`skip ${label}: empty sql`);
     return;
   }
+  console.log(
+    `--- executing ${label} (first 200 chars):\n${sqlText.slice(0, 200).replace(/\n/g, " ")}\n---`,
+  );
   await client.query(sqlText);
   console.log(`applied ${label}`);
 };
@@ -69,6 +72,6 @@ const main = async () => {
 
 main().catch((error) => {
   console.error("db:reset failed");
-  console.error(error.message);
+  console.error(error);
   process.exit(1);
 });

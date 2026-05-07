@@ -216,7 +216,7 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+    <div className="flex min-h-[calc(100svh-4rem)] items-center justify-center px-4 py-10">
       <Card className="w-full max-w-xl border border-border py-6 shadow-xl">
         <CardHeader className="space-y-4 px-6">
           <div className="inline-flex w-fit items-center rounded-lg border border-border bg-muted p-1">
@@ -255,22 +255,31 @@ export default function AuthPage() {
                 <div key={input.key} className="space-y-2">
                   <Label htmlFor={input.key}>{input.label}</Label>
                   {input.usePasswordGroup ? (
-                    <InputGroup>
-                      <InputGroupInput
-                        id={input.key}
-                        type="password"
-                        value={value}
-                        onChange={(e) => setField(input.key, e.target.value)}
-                        autoComplete={input.autoComplete}
-                        required={input.required}
-                        placeholder="••••••••"
-                      />
-                      <InputGroupAddon align="inline-end">
-                        <InputGroupText>
-                          min {MIN_PASSWORD_LENGTH}
-                        </InputGroupText>
-                      </InputGroupAddon>
-                    </InputGroup>
+                    <div className="space-y-1">
+                      <InputGroup className="h-10">
+                        <InputGroupInput
+                          id={input.key}
+                          type="password"
+                          value={value}
+                          onChange={(e) => setField(input.key, e.target.value)}
+                          autoComplete={input.autoComplete}
+                          required={input.required}
+                          placeholder="••••••••"
+                        />
+                        <InputGroupAddon align="inline-end" className="pr-1">
+                          <span className="text-[10px] font-bold uppercase tracking-wider bg-muted px-1.5 py-0.5 rounded text-muted-foreground/70">
+                            Min {MIN_PASSWORD_LENGTH}
+                          </span>
+                        </InputGroupAddon>
+                      </InputGroup>
+                      {mode === "signin" && input.key === "password" && (
+                        <div className="flex justify-end">
+                          <button type="button" className="text-xs text-muted-foreground hover:text-primary transition-colors">
+                            Forgot password?
+                          </button>
+                        </div>
+                      )}
+                    </div>
                   ) : (
                     <Input
                       id={input.key}
@@ -280,6 +289,7 @@ export default function AuthPage() {
                       placeholder={input.placeholder}
                       autoComplete={input.autoComplete}
                       required={input.required}
+                      className="h-10"
                     />
                   )}
 
@@ -324,7 +334,7 @@ export default function AuthPage() {
               <Button
                 type="submit"
                 disabled={submitting || !canSubmit}
-                className="mx-auto flex w-full max-w-[20rem] bg-emerald-600 text-white shadow-[0_0_24px_color-mix(in_oklab,var(--foreground)_24%,transparent)] hover:bg-emerald-500"
+                className="mx-auto flex w-full max-w-[20rem] bg-emerald-600 text-white shadow-[0_0_24px_color-mix(in_oklab,var(--foreground)_12%,transparent)] hover:bg-emerald-500 dark:bg-emerald-500 dark:hover:bg-emerald-400"
               >
                 {submitting ? (
                   "Please wait..."

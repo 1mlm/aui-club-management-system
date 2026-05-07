@@ -20,8 +20,8 @@ const EXAMPLE_QUERIES = [
   u.email AS owner_email,
   c.status,
   c.created_at
-FROM club c
-INNER JOIN users u ON u.user_id = c.owner_id
+FROM "club" c
+INNER JOIN "user" u ON u.user_id = c.owner_id
 WHERE c.status = 'active'
 ORDER BY c.created_at DESC;`,
   },
@@ -34,11 +34,9 @@ ORDER BY c.created_at DESC;`,
   c.club_id,
   c.name,
   COUNT(m.membership_id) AS member_count
-FROM club c
+FROM "club" c
 LEFT JOIN membership m
   ON m.club_id = c.club_id
-  AND m.membership_status = 'active'
-  AND m.left_at IS NULL
 GROUP BY c.club_id, c.name
 ORDER BY member_count DESC;`,
   },
@@ -52,9 +50,9 @@ ORDER BY member_count DESC;`,
   u.email AS requester_email,
   c.name AS club_name,
   jr.created_at
-FROM joinrequest jr
-INNER JOIN users u ON u.user_id = jr.initiator_user_id
-INNER JOIN club c ON c.club_id = jr.target_club_id
+  FROM "joinrequest" jr
+  INNER JOIN "user" u ON u.user_id = jr.initiator_user_id
+  INNER JOIN "club" c ON c.club_id = jr.target_club_id
 WHERE jr.status = 'pending'
 ORDER BY jr.created_at DESC;`,
   },
@@ -69,9 +67,9 @@ ORDER BY jr.created_at DESC;`,
   c.name AS club_name,
   u.display_name AS author,
   p.created_at
-FROM post p
-INNER JOIN club c ON c.club_id = p.club_id
-INNER JOIN users u ON u.user_id = p.user_id
+FROM "post" p
+INNER JOIN "club" c ON c.club_id = p.club_id
+INNER JOIN "user" u ON u.user_id = p.user_id
 WHERE p.is_deleted = FALSE
 ORDER BY p.created_at DESC
 LIMIT 10;`,

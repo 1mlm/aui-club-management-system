@@ -1,5 +1,14 @@
 import { getDbPool } from "@/db/client";
-import type { ClubJoinRequest, ClubQueryRow, ClubRecord, FeedPost, MyClub, MyJoinRequest, PostQueryRow, PostRecord } from "@/db/types";
+import type {
+  ClubJoinRequest,
+  ClubQueryRow,
+  ClubRecord,
+  FeedPost,
+  MyClub,
+  MyJoinRequest,
+  PostQueryRow,
+  PostRecord,
+} from "@/db/types";
 import { validateClubColor, validateClubIcon } from "@/db/validators";
 
 export type OwnedClub = ClubRecord & {
@@ -29,8 +38,8 @@ const LIST_CLUBS_QUERY = `
     c.description AS description,
     c.main_color AS color,
     c.icon_name AS icon,
-    COUNT(m.membership_id) FILTER (WHERE m.membership_status = 'active') AS member_count
-  FROM club c
+     COUNT(m.membership_id) AS member_count
+  FROM "club" c
   LEFT JOIN membership m ON m.club_id = c.club_id
   WHERE c.status = 'active'
   GROUP BY c.club_id
@@ -45,8 +54,8 @@ const GET_CLUB_BY_ID = `
     c.description AS description,
     c.main_color AS color,
     c.icon_name AS icon,
-    COUNT(m.membership_id) FILTER (WHERE m.membership_status = 'active') AS member_count
-  FROM club c
+     COUNT(m.membership_id) AS member_count
+  FROM "club" c
   LEFT JOIN membership m ON m.club_id = c.club_id
   WHERE c.club_id = $1 AND c.status = 'active'
   GROUP BY c.club_id;
@@ -59,12 +68,10 @@ const GET_CLUB_MEMBERS = `
     u.email,
     u.display_name,
     m.membership_role,
-    m.membership_status,
     m.joined_at
   FROM membership m
-  JOIN users u ON u.user_id = m.user_id
+  JOIN "user" u ON u.user_id = m.user_id
   WHERE m.club_id = $1
-    AND m.membership_status IN ('active', 'pending', 'banned')
   ORDER BY 
     CASE WHEN m.membership_role = 'board_member' THEN 1 ELSE 2 END,
     m.joined_at ASC;
@@ -84,9 +91,9 @@ const GET_CLUB_POSTS = `
     p.like_count,
     u.display_name AS author_display_name,
     CASE WHEN pl.user_id IS NOT NULL THEN TRUE ELSE FALSE END AS user_liked
-  FROM post p
-  JOIN users u ON u.user_id = p.user_id
-  LEFT JOIN post_like pl ON pl.post_id = p.post_id AND pl.user_id = $2
+  FROM "post" p
+  JOIN "user" u ON u.user_id = p.user_id
+  LEFT JOIN "post_like" pl ON pl.post_id = p.post_id AND pl.user_id = $2
   WHERE p.club_id = $1 AND p.is_deleted = FALSE
   ORDER BY p.is_pinned DESC, p.created_at DESC;
 `;
@@ -102,6 +109,7 @@ export async function listClubs(): Promise<ClubRecord[]> {
     description: row.description,
     color: validateClubColor(row.color),
     icon: validateClubIcon(row.icon),
+    memberCount: Number(row.member_count) || 0,
     member_count: Number(row.member_count) || 0,
   }));
 }
@@ -120,6 +128,7 @@ export async function getClubById(id: number): Promise<ClubRecord | null> {
     description: row.description,
     color: validateClubColor(row.color),
     icon: validateClubIcon(row.icon),
+    memberCount: Number(row.member_count) || 0,
     member_count: Number(row.member_count) || 0,
   };
 }
@@ -134,10 +143,10 @@ const GET_CLUBS_BY_OWNER_ID = `
     c.icon_name AS icon,
     COALESCE(mc.active_count, 0)::int AS member_count,
     COALESCE(rc.pending_count, 0)::int AS pending_requests
-  FROM club c
+  FROM "club" c
   LEFT JOIN (
     SELECT club_id, COUNT(*)::int AS active_count
-    FROM membership WHERE membership_status = 'active' GROUP BY club_id
+    FROM membership GROUP BY club_id
   ) mc ON mc.club_id = c.club_id
   LEFT JOIN (
     SELECT target_club_id, COUNT(*)::int AS pending_count
@@ -157,9 +166,8 @@ const GET_CLUBS_BY_MEMBER_ID = `
     c.icon_name AS icon,
     m.membership_role
   FROM membership m
-  JOIN club c ON c.club_id = m.club_id
+  JOIN "club" c ON c.club_id = m.club_id
   WHERE m.user_id = $1
-    AND m.membership_status = 'active'
     AND c.status = 'active'
   ORDER BY m.joined_at ASC;
 `;
@@ -173,9 +181,9 @@ const GET_PENDING_REQUESTS_FOR_OWNER = `
     u.email AS requester_email,
     jr.message,
     jr.created_at
-  FROM joinrequest jr
-  JOIN users u ON u.user_id = jr.initiator_user_id
-  JOIN club c ON c.club_id = jr.target_club_id
+  FROM "joinrequest" jr
+  JOIN "user" u ON u.user_id = jr.initiator_user_id
+  JOIN "club" c ON c.club_id = jr.target_club_id
   WHERE c.owner_id = $1
     AND jr.status = 'pending'
     AND c.status = 'active'
@@ -191,10 +199,10 @@ const GET_USER_JOIN_REQUEST_STATUS = `
 
 export async function getClubsByOwnerId(userId: number): Promise<OwnedClub[]> {
   const pool = getDbPool();
-  const result = await pool.query<ClubQueryRow & { member_count: number; pending_requests: number }>(
-    GET_CLUBS_BY_OWNER_ID, [userId]
-  );
-  return result.rows.map(row => ({
+  const result = await pool.query<
+    ClubQueryRow & { member_count: number; pending_requests: number }
+  >(GET_CLUBS_BY_OWNER_ID, [userId]);
+  return result.rows.map((row) => ({
     id: row.id,
     owner_id: row.owner_id,
     name: row.name,
@@ -202,27 +210,39 @@ export async function getClubsByOwnerId(userId: number): Promise<OwnedClub[]> {
     color: validateClubColor(row.color),
     icon: validateClubIcon(row.icon),
     memberCount: row.member_count,
+    member_count: row.pending_requests
+      ? Number(row.member_count) || 0
+      : Number(row.member_count) || 0,
     pendingRequests: row.pending_requests,
   }));
 }
 
-export async function getClubsByMemberId(userId: number): Promise<MemberClub[]> {
+export async function getClubsByMemberId(
+  userId: number,
+): Promise<MemberClub[]> {
   const pool = getDbPool();
   const result = await pool.query<ClubQueryRow & { membership_role: string }>(
-    GET_CLUBS_BY_MEMBER_ID, [userId]
+    GET_CLUBS_BY_MEMBER_ID,
+    [userId],
   );
-  return result.rows.map(row => ({
+  return result.rows.map((row) => ({
     id: row.id,
     owner_id: row.owner_id,
     name: row.name,
     description: row.description,
     color: validateClubColor(row.color),
     icon: validateClubIcon(row.icon),
-    membershipRole: (row.membership_role === "board_member" ? "board_member" : "member") as "board_member" | "member",
+    membershipRole: (row.membership_role === "board_member"
+      ? "board_member"
+      : "member") as "board_member" | "member",
+    memberCount: Number(row.member_count) || 0,
+    member_count: Number(row.member_count) || 0,
   }));
 }
 
-export async function getPendingRequestsForOwner(userId: number): Promise<PendingJoinRequest[]> {
+export async function getPendingRequestsForOwner(
+  userId: number,
+): Promise<PendingJoinRequest[]> {
   const pool = getDbPool();
   const result = await pool.query<{
     id: number;
@@ -233,7 +253,7 @@ export async function getPendingRequestsForOwner(userId: number): Promise<Pendin
     message: string | null;
     created_at: string;
   }>(GET_PENDING_REQUESTS_FOR_OWNER, [userId]);
-  return result.rows.map(row => ({
+  return result.rows.map((row) => ({
     id: row.id,
     clubId: row.club_id,
     clubName: row.club_name,
@@ -244,26 +264,48 @@ export async function getPendingRequestsForOwner(userId: number): Promise<Pendin
   }));
 }
 
-export async function getUserJoinRequestStatus(userId: number, clubId: number): Promise<string | null> {
+export async function getUserJoinRequestStatus(
+  userId: number,
+  clubId: number,
+): Promise<string | null> {
   const pool = getDbPool();
   const result = await pool.query<{ status: string }>(
-    GET_USER_JOIN_REQUEST_STATUS, [userId, clubId]
+    GET_USER_JOIN_REQUEST_STATUS,
+    [userId, clubId],
   );
   return result.rows[0]?.status ?? null;
 }
 
-export async function getClubMembers(clubId: number): Promise<any[]> {
+export async function getClubMembers(clubId: number): Promise<ClubMember[]> {
   const pool = getDbPool();
-  const result = await pool.query(GET_CLUB_MEMBERS, [clubId]);
-  return result.rows.map(row => ({
-      ...row,
-      id: row.user_id
+  const result = await pool.query<{
+    membership_id: number;
+    user_id: number;
+    email: string;
+    display_name: string | null;
+    membership_role: "board_member" | "member";
+    joined_at: Date | string;
+  }>(GET_CLUB_MEMBERS, [clubId]);
+  return result.rows.map((row) => ({
+    id: row.user_id,
+    membership_id: row.membership_id,
+    user_id: row.user_id,
+    email: row.email,
+    display_name: row.display_name,
+    membership_role: row.membership_role,
+    joined_at: row.joined_at,
   }));
 }
 
-export async function getClubPosts(clubId: number, viewerUserId?: number): Promise<PostRecord[]> {
+export async function getClubPosts(
+  clubId: number,
+  viewerUserId?: number,
+): Promise<PostRecord[]> {
   const pool = getDbPool();
-  const result = await pool.query<PostQueryRow>(GET_CLUB_POSTS, [clubId, viewerUserId ?? null]);
+  const result = await pool.query<PostQueryRow>(GET_CLUB_POSTS, [
+    clubId,
+    viewerUserId ?? null,
+  ]);
 
   return result.rows.map((row) => ({
     id: row.id,
@@ -292,8 +334,8 @@ const GET_MY_CLUBS = `
       WHEN m.membership_role = 'board_member' THEN 'board_member'
       ELSE 'member'
     END AS role
-  FROM club c
-  LEFT JOIN membership m ON m.club_id = c.club_id AND m.user_id = $1 AND m.membership_status = 'active'
+  FROM "club" c
+  LEFT JOIN membership m ON m.club_id = c.club_id AND m.user_id = $1
   WHERE c.status = 'active'
     AND (
       c.owner_id = $1
@@ -313,16 +355,16 @@ const GET_RECENT_FEED = `
     p.content,
     p.created_at,
     u.display_name AS author_display_name
-  FROM post p
-  JOIN club c ON c.club_id = p.club_id
-  JOIN users u ON u.user_id = p.user_id
+  FROM "post" p
+  JOIN "club" c ON c.club_id = p.club_id
+  JOIN "user" u ON u.user_id = p.user_id
   WHERE p.is_deleted = FALSE
     AND c.status = 'active'
     AND (
       c.owner_id = $1
       OR EXISTS (
         SELECT 1 FROM membership m
-        WHERE m.club_id = p.club_id AND m.user_id = $1 AND m.membership_status = 'active'
+        WHERE m.club_id = p.club_id AND m.user_id = $1
       )
     )
   ORDER BY p.created_at DESC
@@ -338,14 +380,14 @@ const GET_CLUB_JOIN_REQUESTS = `
     jr.message,
     jr.created_at,
     jr.status
-  FROM joinrequest jr
-  JOIN users u ON u.user_id = jr.initiator_user_id
+  FROM "joinrequest" jr
+  JOIN "user" u ON u.user_id = jr.initiator_user_id
   WHERE jr.target_club_id = $1 AND jr.status IN ('pending', 'waitlisted')
   ORDER BY jr.status ASC, jr.created_at ASC;
 `;
 
 const GET_USER_JOIN_REQUEST_FOR_CLUB = `
-  SELECT status FROM joinrequest
+  SELECT status FROM "joinrequest"
   WHERE initiator_user_id = $1 AND target_club_id = $2
   ORDER BY created_at DESC
   LIMIT 1;
@@ -358,18 +400,21 @@ const GET_MY_JOIN_REQUESTS = `
     c.name AS club_name,
     jr.status,
     jr.created_at
-  FROM joinrequest jr
-  JOIN club c ON c.club_id = jr.target_club_id
+  FROM "joinrequest" jr
+  JOIN "club" c ON c.club_id = jr.target_club_id
   WHERE jr.initiator_user_id = $1
   ORDER BY jr.created_at DESC;
 `;
 
 export async function getMyClubs(userId: number): Promise<MyClub[]> {
   const pool = getDbPool();
-  const result = await pool.query<{ id: number; name: string; color: string | null; icon: string | null; role: string }>(
-    GET_MY_CLUBS,
-    [userId]
-  );
+  const result = await pool.query<{
+    id: number;
+    name: string;
+    color: string | null;
+    icon: string | null;
+    role: string;
+  }>(GET_MY_CLUBS, [userId]);
   return result.rows.map((row) => ({
     id: row.id,
     name: row.name,
@@ -379,12 +424,21 @@ export async function getMyClubs(userId: number): Promise<MyClub[]> {
   }));
 }
 
-export async function getRecentFeed(userId: number, limit = 10): Promise<FeedPost[]> {
+export async function getRecentFeed(
+  userId: number,
+  limit = 10,
+): Promise<FeedPost[]> {
   const pool = getDbPool();
   const result = await pool.query<{
-    id: number; club_id: number; club_name: string; club_color: string | null;
-    club_icon: string | null; title: string; content: string;
-    created_at: Date | string; author_display_name: string;
+    id: number;
+    club_id: number;
+    club_name: string;
+    club_color: string | null;
+    club_icon: string | null;
+    title: string;
+    content: string;
+    created_at: Date | string;
+    author_display_name: string;
   }>(GET_RECENT_FEED, [userId, limit]);
   return result.rows.map((row) => ({
     id: row.id,
@@ -399,20 +453,34 @@ export async function getRecentFeed(userId: number, limit = 10): Promise<FeedPos
   }));
 }
 
-export async function getClubJoinRequests(clubId: number): Promise<ClubJoinRequest[]> {
+export async function getClubJoinRequests(
+  clubId: number,
+): Promise<ClubJoinRequest[]> {
   const pool = getDbPool();
-  const result = await pool.query<ClubJoinRequest>(GET_CLUB_JOIN_REQUESTS, [clubId]);
+  const result = await pool.query<ClubJoinRequest>(GET_CLUB_JOIN_REQUESTS, [
+    clubId,
+  ]);
   return result.rows;
 }
 
-export async function getUserJoinRequestForClub(userId: number, clubId: number): Promise<{ status: string } | null> {
+export async function getUserJoinRequestForClub(
+  userId: number,
+  clubId: number,
+): Promise<{ status: string } | null> {
   const pool = getDbPool();
-  const result = await pool.query<{ status: string }>(GET_USER_JOIN_REQUEST_FOR_CLUB, [userId, clubId]);
+  const result = await pool.query<{ status: string }>(
+    GET_USER_JOIN_REQUEST_FOR_CLUB,
+    [userId, clubId],
+  );
   return result.rows[0] ?? null;
 }
 
-export async function getMyJoinRequests(userId: number): Promise<MyJoinRequest[]> {
+export async function getMyJoinRequests(
+  userId: number,
+): Promise<MyJoinRequest[]> {
   const pool = getDbPool();
-  const result = await pool.query<MyJoinRequest>(GET_MY_JOIN_REQUESTS, [userId]);
+  const result = await pool.query<MyJoinRequest>(GET_MY_JOIN_REQUESTS, [
+    userId,
+  ]);
   return result.rows;
 }

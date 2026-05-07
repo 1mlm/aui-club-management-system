@@ -7,10 +7,10 @@ export default async function Page() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
-        <h1 className="text-xl font-semibold">Clubs Dashboard</h1>
-        <span className="text-xs text-muted-foreground tabular-nums">
-          {clubs.length} clubs
+      <div className="flex items-center justify-between border-b pb-4">
+        <h1 className="text-2xl font-bold tracking-tight">Clubs Dashboard</h1>
+        <span className="text-xs font-semibold text-muted-foreground tabular-nums bg-muted px-2 py-1 rounded-lg">
+          {clubs.length} Clubs
         </span>
       </div>
       <Suspense fallback={null}>

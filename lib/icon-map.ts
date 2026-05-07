@@ -16,6 +16,8 @@ import {
   TradeDownIcon,
   TradeUpIcon,
   UnavailableIcon,
+  Sun01Icon,
+  Moon01Icon,
   User03Icon,
   UserAdd01Icon,
   UserIcon,
@@ -65,5 +67,7 @@ export const ICON_MAP = {
     close: X,
     logo: Telescope01Icon,
     feed: Notification01Icon,
+    sun: Sun01Icon,
+    moon: Moon01Icon,
   },
 } as const satisfies Record<string, Record<string, Hugeicon>>;

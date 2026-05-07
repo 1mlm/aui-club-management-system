@@ -33,15 +33,13 @@ export function getClubColorStyles(color?: ClubColor): ClubColorStyles {
   }
 
   const hex = CLUB_COLOR_HEX[color];
-
-  // Convert hex to RGB for dynamic opacity
   const rgb = hexToRgb(hex);
 
   return {
-    bg: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05)`,
-    text: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.85)`,
-    border: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15)`,
-    shadow: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1)`,
+    bg: `light-dark(rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.05), rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.12))`,
+    text: `light-dark(rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.85), rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.95))`,
+    border: `light-dark(rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.15), rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.25))`,
+    shadow: `light-dark(rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.1), rgba(0, 0, 0, 0.4))`,
     primary: `rgb(${rgb.r}, ${rgb.g}, ${rgb.b})`,
     primaryHover: `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.85)`,
   };
